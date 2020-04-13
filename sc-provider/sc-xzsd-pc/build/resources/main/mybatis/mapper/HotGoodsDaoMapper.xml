@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.hotGoodsManagement.dao.HotGoodsDao">
+    <!--添加热门商品-->
+    <insert id="addHotGoods" parameterType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDo">
+        insert into t_hot_goods
+        (
+        hotGoodsId,
+        goodsSort,
+        goodsId,
+        isdetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{hotGoodsId},
+        #{goodsSort},
+        #{goodsId},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        0
+        )
+    </insert>
+
+    <!--询热门排序是否已经存在-->
+    <select id="accoutGoodsSort" resultType="int" parameterType="int">
+        select count(hotGoodsId)
+        from t_hot_goods
+        where goodsSort = #{goodsSort} and isdetele = 1
+    </select>
+
+    <!--查询热门商品Id是否已经存在-->
+    <select id="accoutGoodsId" parameterType="String" resultType="int">
+        select count(hotGoodsId)
+        from t_hot_goods
+        where goodsId = #{goodsId} and isdetele = 1
+    </select>
+
+    <!---->
+    <select id="listHotGoods" parameterType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDTO" resultType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsVo">
+<!--        SELECT th.goodsSort,th.goodsId,th.hotGoodsId,tg.goodsName,tg.goodsPrice,tg.goodsIntroduce-->
+<!--        FROM t_hot_goods th,t_goods tg-->
+<!--        WHERE-->
+<!--        tg.goodsId = th.goodsId-->
+<!--        <if test="goodsId != null and goodsId != ''">-->
+<!--            AND th.goodsId = #{goodsId}-->
+<!--        </if>-->
+<!--        <if test="goodsName != null and goodsName != ''">-->
+<!--            AND tg.goodsName LIKE CONCAT('%',#{goodsName},'%')-->
+<!--        </if>-->
+        SELECT th.goodsSort,th.goodsId,th.hotGoodsId,tg.goodsName,tg.goodsPrice,tg.goodsIntroduce
+
+        FROM t_hot_goods th
+        LEFT JOIN t_goods tg
+        ON th.goodsId = tg.goodsId
+        <if test="goodsName != null and goodsName != '' or goodsId != null and goodsId != ''">
+            where
+        </if>
+        <if test="goodsName != null and goodsName != ''">
+           tg.goodsName like concat('%',#{goodsName},'%') and
+        </if>
+        <if test="goodsId != null and goodsId != ''">
+           th.goodsId = #{goodsId} and
+        </if>
+        th.isdetele = 1
+    </select>
+
+    <update id="deteleHotGoods">
+        update t_hot_goods
+        set
+        isdetele = 0,
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+        where
+        hotGoodsId in
+        <foreach collection="hotGoodsId" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--查看热门商品展示数量-->
+    <select id="findHotGoodsNum" resultType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsNum">
+        select hotGoodsNum
+        from t_hotnum
+        where isdetele = 1
+    </select>
+
+    <!--修改热门商品展示数量-->
+    <update id="updateHotGoodsNum">
+        update t_hotnum
+        set
+        hotGoodsNum = #{num},
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+    </update>
+</mapper>

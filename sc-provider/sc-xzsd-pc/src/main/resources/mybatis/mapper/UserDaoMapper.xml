@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.userManagement.dao.UserDao">
+    <!--统计用户账号数量-->
+    <select id="countUserAcct" parameterType="String" resultType="int">
+        SELECT COUNT(userId) FROM t_user WHERE isDetele = 1 AND userAccount = #{userAccount}
+    </select>
+
+    <!--新增用户-->
+    <insert id="saveUser" parameterType="com.xzsd.pc.userManagement.entity.UserInfo">
+        insert into t_user(
+        userId,
+        userAccount,
+        password,
+        userName,
+        role,
+        sex,
+        phone,
+        email,
+        imagesUrl,
+        idCard,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        )
+        values(
+        #{userId},
+        #{userAccount},
+        #{password},
+        #{userName},
+        #{role},
+        #{sex},
+        #{phone},
+        #{email},
+        #{imagesUrl},
+        #{idCard},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        0
+        )
+    </insert>
+
+    <!--删除用户 -->
+    <update id="deleteUser" parameterType="com.xzsd.pc.userManagement.entity.UserInfo">
+        update t_user
+        set isDetele = 0,
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+        where userId in
+        <foreach collection="listId" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--查询用户列表-->
+    <select id="listUsersByPage" parameterType="com.xzsd.pc.userManagement.entity.UserInfo" resultType="com.xzsd.pc.userManagement.entity.UserInfo">
+        select
+        userId,
+        userAccount,
+        password,
+        userName,
+        role,
+        sex,
+        phone,
+        email,
+        idCard,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        from t_user
+        where isDetele = 1
+        <if test="userAccount != null and userAccount != ''">
+            and userAccount like concat('%',#{userAccount},'%')
+        </if>
+        <if test="userName != null and userName != ''">
+            and userName like concat('%',#{userName},'%')
+        </if>
+        <if test="role != null and role !=''">
+            and role = #{role}
+        </if>
+        order by buildTime desc
+    </select>
+
+    <!--修改用户信息-->
+    <update id="updateUser" parameterType="com.xzsd.pc.userManagement.entity.UserInfo">
+        update t_user
+        set
+        <if test="userAccount != null and userAccount != ''">
+            userAccount = #{userAccount},
+        </if>
+        <if test="userName != null and userName !=''">
+            userName = #{userName},
+        </if>
+        <if test="sex != null and sex !=''">
+            sex = #{sex},
+        </if>
+        <if test="phone != null and phone !=''">
+            phone = #{phone},
+        </if>
+        <if test="email != null and email !=''">
+            email = #{email},
+        </if>
+        <if test="imagesUrl != null and imagesUrl !=''">
+            imagesUrl = #{imagesUrl},
+        </if>
+        <if test="idCard != null and idCard !=''">
+            idCard = #{idCard},
+        </if>
+        <if test="password != null and password !=''">
+            password = #{password},
+        </if>
+        modifiyTime = now(),
+        lastModifiyBy = #{lastModifiyBy},
+        version = version + 1
+        where userId = #{userId}
+        and isDetele != 0
+    </update>
+
+    <!--查看用户详情-->
+    <select id="findUserById" resultType="com.xzsd.pc.userManagement.entity.UserInfo">
+        select
+        userId,
+        userAccount,
+        password,
+        userName,
+        role,
+        sex,
+        phone,
+        email,
+        idCard,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        from t_user
+        where
+        isDetele = 1
+        <if test="userId != null and userId != ''">
+           and userId = #{userId}
+        </if>
+    </select>
+
+    <!--用户栏详情-->
+    <select id="userTopbar" resultType="com.xzsd.pc.userManagement.entity.UserVo" parameterType="String">
+        select
+        userId,
+        userName,
+        userPicture,
+        role
+        from t_user
+        where
+        userId = #{userId} and isdetele = 1
+    </select>
+
+
+</mapper>

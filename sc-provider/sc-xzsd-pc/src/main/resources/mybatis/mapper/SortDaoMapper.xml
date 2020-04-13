@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.goodsSortMansgement.dao.SortDao">
+    <!--统计存在数-->
+    <select id="countNum" parameterType="String" resultType="int">
+        select count(sortId)
+        from t_goods_sort
+        where sortName = #{sortName} and isdetele = 1
+    </select>
+
+    <!--新增商品分类目录-->
+    <insert id="addGoodsSort" parameterType="com.xzsd.pc.goodsSortMansgement.entity.SortDo">
+        insert into t_goods_sort
+        (
+        sortId,
+        sortName,
+        remarks,
+        isParent,
+        parentId,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        VERSION
+        ) values
+        (
+        #{sortId},
+        #{sortName},
+        #{remarks},
+        #{isParent},
+        #{parentId},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        1
+        )
+    </insert>
+
+    <!--查询商品一级目录-->
+    <select id="findFirstClass" resultType="com.xzsd.pc.goodsSortMansgement.entity.SortVo">
+        select
+        sortId,
+        sortName,
+        remarks
+        from t_goods_sort
+        where
+        isDetele = 1
+        and isParent = 1
+    </select>
+
+    <!--查询商品二级目录-->
+    <select id="findSecondClass" parameterType="String" resultType="com.xzsd.pc.goodsSortMansgement.entity.SortVo">
+        select
+        sortId,
+        sortName,
+        remarks
+        from t_goods_sort
+        where
+        isDetele = 1 and
+        parentId = #{parentId}
+    </select>
+
+    <!--修改商品分类目录-->
+    <update id="updateGoodsSort" parameterType="com.xzsd.pc.goodsSortMansgement.entity.SortDo">
+        update t_goods_sort
+        set
+        <if test="sortName != null and sortName != ''">
+            sortName = #{sortName},
+        </if>
+        <if test="remarks != null and remarks != ''">
+            remarks = #{remarks},
+        </if>
+        modifiyTime = now(),
+        lastModifiyBy = #{lastModifiyBy},
+        version = version + 1
+        where
+        sortId = #{sortId}
+        and isDetele = 1
+    </update>
+
+    <!--删除商品分类目录-->
+    <update id="deteleGoodsSort" parameterType="String">
+        update t_goods_sort
+        set
+        isDetele = 0,
+        modifiyTime = now()
+        where
+        sortId = #{sortId} or parentId = #{sortId}
+    </update>
+
+    <!--查看商品分类详情-->
+    <select id="findGoodsSort" parameterType="String" resultType="com.xzsd.pc.goodsSortMansgement.entity.SortVo">
+        select
+        sortId,
+        sortName,
+        remarks
+        from t_goods_sort
+        where
+        sortId = #{sortId}
+        and isDetele = 1
+    </select>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.customerManagement.dao.CustomerDao">
+
+    <!--查询客户列表-->
+    <select id="listCustomer" parameterType="com.xzsd.pc.customerManagement.entity.CustomerDTO" resultType="com.xzsd.pc.customerManagement.entity.CustomerDo">
+        select cus.customerId,
+        us.userId,
+        us.userAccount as customerAccount,
+        us.userName as customerName,
+        us.email,
+        us.sex,
+        us.phone,
+        us.idCard
+        from t_customer cus
+        left join t_user us
+        ON cus.userId = us.userId
+        <if test="customerName != null and customerName != '' or customerAccount != null and customerAccount != ''">
+            where
+        </if>
+        <if test="customerName != null and customerName != ''">
+            us.userName like concat('%',#{customerName},'%') and
+        </if>
+        <if test="customerAccount != null and customerAccount != ''">
+            us.userAccount like concat('%',#{customerAccount},'%') and
+        </if>
+        us.isdetele = 1
+    </select>
+
+    <!--查询客户详情-->
+    <select id="findCustomer" parameterType="String" resultType="com.xzsd.pc.customerManagement.entity.CustomerDo">
+        select
+        us.userAccount as customerAccount,
+        us.userName as customerName,
+        email,
+        sex,
+        phone,
+        idCard
+        from t_user us
+        where
+        userId = #{userId} and isDetele = 1
+    </select>
+
+</mapper>

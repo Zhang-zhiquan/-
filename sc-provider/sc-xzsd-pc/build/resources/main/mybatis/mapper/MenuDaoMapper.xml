@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.menuManagement.dao.MenuDao">
+    <!--新增菜单-->
+    <insert id="addMenu" parameterType="com.xzsd.pc.menuManagement.entity.MenuDo">
+        insert into t_menu
+        (
+        menuId,
+        menuName,
+        menuRoute,
+        remarks,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{menuId},
+        #{menuName},
+        #{menuRoute},
+        #{remarks},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        0
+        )
+    </insert>
+
+    <!--修改菜单-->
+    <update id="updateMenu" parameterType="com.xzsd.pc.menuManagement.entity.MenuDo">
+        update t_menu
+        set
+        <if test="menuName != null and menuName != ''">
+            menuName = #{menuName},
+        </if>
+        <if test="menuRoute != null and menuRoute != ''">
+            menuRoute = #{menuRoute},
+        </if>
+        <if test="remarks != null and remarks != ''">
+            remarks = #{remarks},
+        </if>
+        modifiyTime = now(),
+        lastModifiyBy = #{lastModifiyBy},
+        version = version + 1
+        where menuId = #{menuId} and isDetele = 1
+    </update>
+
+    <!--删除菜单-->
+    <update id="deleteMenu" parameterType="String">
+        update t_menu
+        set
+        isDetele = 0,
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+        where MenuId in
+        <foreach collection="menuId" index="index" item="menuid" open="(" close=")" separator=",">
+            #{menuid}
+        </foreach>
+    </update>
+
+    <!--查询管理员菜单列表-->
+    <select id="MenuManagementList" resultType="com.xzsd.pc.menuManagement.entity.MenuVo">
+        select
+        menuId,
+        menuName
+        from
+        t_menu
+        where
+        isDetele = 1
+    </select>
+
+    <!--查询店长菜单列表-->
+    <select id="MenuShopperList" resultType="com.xzsd.pc.menuManagement.entity.MenuVo">
+        select
+        menuId,
+        menuName
+        from t_menu
+        where
+        menuName in ("客户管理","订单管理","门店信息管理","司机信息管理") and isdetele = 1
+    </select>
+
+    <!--查看菜单详情-->
+    <select id="findMenu" resultType="com.xzsd.pc.menuManagement.entity.MenuDo">
+        select
+        menuName,
+        menuRoute,
+        remarks
+        from t_menu
+        where
+        menuId = #{menuId} and isDetele = 1
+    </select>
+
+</mapper>

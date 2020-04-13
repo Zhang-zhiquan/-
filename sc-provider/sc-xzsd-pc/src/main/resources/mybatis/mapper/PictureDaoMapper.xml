@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.rotationPictureManagement.dao.PictureDao">
+
+    <!--查询轮播图列表-->
+    <select id="pictureList" resultType="com.xzsd.pc.rotationPictureManagement.entity.PictureDo" parameterType="int">
+        select
+        pictureId,
+        pictureSort,
+        pictureRounte,
+        pictureStatus,
+        pictureStart,
+        pictureEnd
+        from t_rotation_picture
+        where
+        <!--Id为1查找启用-->
+        <if test="pictureStatus == 1">
+            pictureStatus = 1
+            and
+            isDetele = 1
+        </if>
+        <!--Id为0查找禁用-->
+        <if test="pictureStatus == 0">
+            pictureStatus = 0
+            and
+            isDetele = 1
+        </if>
+        <!--Id为2查找全部-->
+        <if test="pictureStatus == 2">
+            isDetele = 1
+        </if>
+        order by pictureSort asc
+    </select>
+
+    <!--新增轮播图-->
+    <insert id="addPicture" parameterType="com.xzsd.pc.rotationPictureManagement.entity.PictureDo">
+        insert into t_rotation_picture
+        (
+        pictureId,
+        pictureSort,
+        pictureRounte,
+        pictureStatus,
+        pictureStart,
+        pictureEnd,
+        goodsId,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{pictureId},
+        #{pictureSort},
+        #{pictureRounte},
+        1,
+        #{pictureStart},
+        #{pictureEnd},
+        #{goodsId},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        1
+        )
+    </insert>
+
+    <!--查询图片排序是否已经存在-->
+    <select id="accountSort" resultType="int">
+        select count(pictureId)
+        from t_rotation_picture
+        where
+        pictureSort = #{pictureSort} and isdetele = 1
+    </select>
+
+    <!--查询轮播图是否已经存在-->
+    <select id="accountGoodsId" resultType="int">
+        select count(pictureId)
+        from t_rotation_picture
+        where
+        goodsId = #{goodsId} and isdetele = 1
+    </select>
+
+    <!--删除轮播图-->
+    <update id="deletePicture">
+        update t_rotation_picture
+        set
+        isDetele = 0,
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+        where
+        pictureId in
+        <foreach collection="pictureId" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--修改轮播图状态：0为禁用,1为启用-->
+    <update id="updatePicture">
+        update t_rotation_picture
+        set
+        <if test="pictureStatus == 0">
+            pictureStatus = 0,
+        </if>
+        <if test="pictureStatus == 1">
+            pictureStatus = 1,
+        </if>
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+        where
+        pictureId in
+        <foreach collection="pictureIdList" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--查找商品-->
+    <select id="findGoods" resultType="com.xzsd.pc.rotationPictureManagement.entity.GoodsVo">
+        select
+            goodsId,
+            goodsName,
+            goodsStatus,
+            firstClass,
+            secondClass
+        from t_goods
+        where
+            <if test="goodsId != null and goodsId != ''">
+                goodsId = #{goodsId} and
+            </if>
+            <if test="goodsName != null and goodsName != ''">
+                goodsName like concat('%',#{goodsName},'%') and
+            </if>
+            goodsStatus = 1 and isdetele = 1
+    </select>
+
+</mapper>

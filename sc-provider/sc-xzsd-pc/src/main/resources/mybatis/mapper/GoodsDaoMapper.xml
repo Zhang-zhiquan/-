@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.goodsManagement.dao.GoodsDao">
+
+    <!--查询商品列表-->
+    <select id="goodsList" parameterType="com.xzsd.pc.goodsManagement.entity.GoodsDo" resultType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
+        select
+        goodsName,
+        goodsId,
+        goodsPrice,
+        goodsSalesVolume,
+        firstClass,
+        secondClass,
+        goodsAdvertising,
+        goodsIntroduce,
+        goodsStatus,
+        goodsShelfTime,
+        goodsBrowse,
+        shopCode,
+        shopName,
+        goodsStock,
+        bookNumber
+        from t_goods
+        where
+        isDetele = 1
+        <if test="goodsName != null and goodsName != ''">
+          and goodsName like concat('%',#{goodsName},'%')
+        </if>
+        <if test="goodsStatus != null and goodsStatus != '' and goodsStatus != 3">
+            and goodsStatus = #{goodsStatus}
+        </if>
+        <if test="goodsAdvertising != null and goodsAdvertising != ''">
+            and goodsAdvertising like concat('%',#{goodsAdvertising},'%')
+        </if>
+        <if test="publisher != null and publisher != ''">
+            and publisher like concat('%',#{publisher},'%')
+        </if>
+        <if test="author != null and author != ''">
+            and author like concat('%',#{author},'%')
+        </if>
+        order by buildTime desc
+    </select>
+
+    <!--添加商品-->
+    <insert id="addGoods" parameterType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
+        insert into t_goods
+        (
+        goodsId,
+        goodsName,
+        goodsCostprice,
+        goodsSale,
+        firstClass,
+        secondClass,
+        goodsAdvertising,
+        goodsIntroduce,
+        goodsStatus,
+        goodsSalesVolume,
+        goodsBrowse,
+        goodsShelfTime,
+        shopCode,
+        shopName,
+        goodsStock,
+        bookNumber,
+        goodsPicture,
+        publisher,
+        author,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{goodsId},
+        #{goodsName},
+        #{goodsCostprice},
+        #{goodsSale},
+        #{firstClass},
+        #{secondClass},
+        #{goodsAdvertising},
+        #{goodsIntroduce},
+        #{goodsStatus},
+        0,
+        0,
+        now(),
+        #{shopCode},
+        #{shopName},
+        #{goodsStock},
+        #{bookNumber},
+        #{goodsPicture},
+        #{publisher},
+        #{author},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        0
+        )
+    </insert>
+
+    <!--查询商品详情-->
+    <select id="findGoods" resultType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
+        select
+        goodsName,
+        goodsId,
+        goodsPrice,
+        goodsSalesVolume,
+        firstClass,
+        secondClass,
+        goodsAdvertising,
+        goodsIntroduce,
+        goodsStatus,
+        goodsShelfTime,
+        goodsBrowse,
+        shopCode,
+        shopName,
+        goodsStock,
+        bookNumber
+        from t_goods
+        where
+        <if test="goodsId != null and goodsId != ''">
+            goodsId = #{goodsId}
+        </if>
+    </select>
+
+    <!--实现有问题未解决-->
+<!--    <update id="updateGoods">-->
+<!--        update t_goods-->
+<!--        set-->
+<!--        <if test="goodsName != null and goodsName != ''">-->
+<!--        goodsName = #{goodsName},-->
+<!--        </if>-->
+<!--        <if test="goodsCostprice != null and goodsCostprice != ''">-->
+<!--            goodsCostprice = #{goodsCostprice},-->
+<!--        </if>-->
+<!--        <if test="goodsSale != null and goodsSale != ''">-->
+<!--            goodsSale = #{goodsSale},-->
+<!--        </if>-->
+<!--        <if test="firstClass != null and firstClass != ''">-->
+<!--            firstClass = #{firstClass},-->
+<!--        </if>-->
+<!--        <if test="secondClass != null and secondClass != ''">-->
+<!--            secondClass = #{secondClass},-->
+<!--        </if>-->
+<!--        <if test="goodsAdvertising != null and goodsAdvertising != ''">-->
+<!--            goodsAdvertising = #{goodsAdvertising},-->
+<!--        </if>-->
+<!--        <if test="goodsIntroduce != null and goodsIntroduce != ''">-->
+<!--            goodsIntroduce = #{goodsIntroduce},-->
+<!--        </if>-->
+<!--        <if test="goodsStatus != null and goodsStatus != ''">-->
+<!--            goodsStatus = #{goodsStatus},-->
+<!--        </if>-->
+<!--        <if test="goodsSalesVolume != null and goodsSalesVolume != ''">-->
+<!--            goodsSalesVolume = #{goodsSalesVolume},-->
+<!--        </if>-->
+<!--        <if test="goodsBrowse != null and goodsBrowse != ''">-->
+<!--            goodsBrowse = #{goodsBrowse},-->
+<!--        </if>-->
+<!--        <if test="shopCode != null and shopCode != ''">-->
+<!--            shopCode = #{shopCode},-->
+<!--        </if>-->
+<!--        <if test="shopName != null and shopName != ''">-->
+<!--            shopName = #{shopName},-->
+<!--        </if>-->
+<!--        <if test="goodsStock != null and goodsStock != ''">-->
+<!--            goodsStock = #{goodsStock},-->
+<!--        </if>-->
+<!--        <if test="bookNumber != null and bookNumber != ''">-->
+<!--            bookNumber = #{bookNumber},-->
+<!--        </if>-->
+<!--        <if test="goodsPicture != null and goodsPicture != ''">-->
+<!--            goodsPicture = #{goodsPicture},-->
+<!--        </if>-->
+<!--        <if test="goodsPicture != null and goodsPicture != ''">-->
+<!--            goodsPicture = #{goodsPicture},-->
+<!--        </if>-->
+<!--        <if test="publisher != null and publisher != ''">-->
+<!--            publisher = #{publisher},-->
+<!--        </if>-->
+<!--        <if test="author != null and author != ''">-->
+<!--            author = #{author},-->
+<!--        </if>-->
+<!--        modifiyTime = now(),-->
+<!--        lastModifiyBy = #{currentUserId},-->
+<!--        version = version + 1-->
+<!--        where-->
+<!--        goodsId = #{goodsId}-->
+<!--        and isDetele = 1-->
+<!--    </update>-->
+
+    <!--修改商品信息-->
+    <update id="updateGoods" parameterType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
+        update t_goods
+        set
+        <if test="goodsName != null and goodsName != ''">
+            goodsName = #{goodsName},
+        </if>
+        <if test="goodsCostprice != null and goodsCostprice != ''">
+            goodsCostprice = #{goodsCostprice},
+        </if>
+        <if test="goodsSale != null and goodsSale != ''">
+            goodsSale = #{goodsSale},
+        </if>
+        <if test="firstClass != null and firstClass != ''">
+            firstClass = #{firstClass},
+        </if>
+        <if test="secondClass != null and secondClass != ''">
+            secondClass = #{secondClass},
+        </if>
+        <if test="goodsAdvertising != null and goodsAdvertising != ''">
+            goodsAdvertising = #{goodsAdvertising},
+        </if>
+        <if test="goodsIntroduce != null and goodsIntroduce != ''">
+            goodsIntroduce = #{goodsIntroduce},
+        </if>
+        <if test="goodsStatus != null and goodsStatus != ''">
+            goodsStatus = #{goodsStatus},
+        </if>
+        <if test="goodsSalesVolume != null and goodsSalesVolume != ''">
+            goodsSalesVolume = #{goodsSalesVolume},
+        </if>
+        <if test="goodsBrowse != null and goodsBrowse != ''">
+            goodsBrowse = #{goodsBrowse},
+        </if>
+        <if test="shopCode != null and shopCode != ''">
+            shopCode = #{shopCode},
+        </if>
+        <if test="shopName != null and shopName != ''">
+            shopName = #{shopName},
+        </if>
+        <if test="goodsStock != null and goodsStock != ''">
+            goodsStock = #{goodsStock},
+        </if>
+        <if test="bookNumber != null and bookNumber != ''">
+            bookNumber = #{bookNumber},
+        </if>
+        <if test="goodsPicture != null and goodsPicture != ''">
+            goodsPicture = #{goodsPicture},
+        </if>
+        <if test="publisher != null and publisher != ''">
+            publisher = #{publisher},
+        </if>
+        <if test="author != null and author != ''">
+            author = #{author},
+        </if>
+        modifiyTime = now(),
+        lastModifiyBy = #{lastModifiyBy},
+        version = version + 1
+        where
+        goodsId = #{goodsId}
+        and isDetele = 1
+    </update>
+
+    <!--删除商品-->
+    <update id="deleteGoods">
+        update t_goods
+        set
+        isDetele = 0,
+        lastModifiyBy = #{currentUserId},
+        modifiyTime = now()
+        where
+        goodsId in
+        <foreach collection="goodsId" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
