@@ -124,8 +124,8 @@
             goodsId,
             goodsName,
             goodsStatus,
-            firstClass,
-            secondClass
+            (select sortName from t_goods_sort where sortId = firstClass) as firstClass,
+            (select sortName from t_goods_sort where sortId = secondClass) as secondClass
         from t_goods
         where
             <if test="goodsId != null and goodsId != ''">
@@ -135,6 +135,7 @@
                 goodsName like concat('%',#{goodsName},'%') and
             </if>
             goodsStatus = 1 and isdetele = 1
+            order by goodsShelfTime desc
     </select>
 
 </mapper>

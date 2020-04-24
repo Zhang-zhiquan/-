@@ -1,6 +1,7 @@
 package com.xzsd.pc.userManagement.controller;
 
 import com.neusoft.security.client.utils.SecurityUtils;
+import com.xzsd.pc.userManagement.entity.UserDTO;
 import com.xzsd.pc.userManagement.entity.UserInfo;
 import com.xzsd.pc.userManagement.service.UserService;
 import com.xzsd.pc.util.AppResponse;
@@ -31,12 +32,12 @@ public class UserController {
     /**
      * 新增用户
      */
-    @PostMapping("addUser")
-    public AppResponse saveUser(UserInfo userInfo){
+    @RequestMapping(value = "addUser")
+    public AppResponse saveUser(UserDTO userDTO){
         try{
-            String userId = SecurityUtils.getCurrentUserId();
-            userInfo.setCreateBy(userId);
-            AppResponse appResponse = userService.saveUser(userInfo);
+            String currentUserId = SecurityUtils.getCurrentUserId();
+            userDTO.setCreateBy(currentUserId);
+            AppResponse appResponse = userService.saveUser(userDTO);
             return appResponse;
         }catch (Exception e){
             logger.error("用户新增失败",e);

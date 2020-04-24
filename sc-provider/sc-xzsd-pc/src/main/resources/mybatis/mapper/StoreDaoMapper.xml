@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.storeManagement.dao.StoreDao">
+    <!--查询省-->
+    <select id="findProvince" resultType="com.xzsd.pc.storeManagement.entity.RegionDo">
+        select regionId,regionName
+        from t_region
+        where regionType = 1
+    </select>
+
+    <!--查询市-->
+    <select id="findCity" resultType="com.xzsd.pc.storeManagement.entity.RegionDo">
+        select regionId,regionName
+        from t_region
+        where fatherId = #{regionId} and regionType = 2
+    </select>
+
+    <!--查询区-->
+    <select id="findLocaltion" resultType="com.xzsd.pc.storeManagement.entity.RegionDo">
+        select regionId,regionName
+        from t_region
+        where fatherId = #{regionId} and regionType = 3
+    </select>
+
+    <!--校验店长账号是否在user表-->
+    <select id="accoutInUser" resultType="int">
+        select count(userId) from t_user where userId = #{userId} and isdetele = 1
+    </select>
+
+    <!--校验店长是否已经存在门店-->
+    <select id="accoutInStore" resultType="int">
+        select count(storeId) from t_store where shopownerId = #{userId} and isdetele = 1
+    </select>
+
+    <!--校验版本-->
+    <select id="accoutVersion" resultType="int">
+        select count(storeId)
+        from t_store
+        where
+        version = #{version} and storeId = #{storeId} and isdetele = 1
+    </select>
+
+    <!--新增门店-->
+    <insert id="addStore" parameterType="com.xzsd.pc.storeManagement.entity.StoreDo">
+        insert into t_store
+        (
+        storeId,
+        storeName,
+        storePhone,
+        shopownerId,
+        shoppingCode,
+        province,
+        city,
+        location,
+        storeAddress,
+        invitationCode,
+        storeAccountNumber,
+        shopownerName,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        VERSION
+        ) values
+        (
+        #{storeId},
+        #{storeName},
+        #{storePhone},
+        #{shopownerId},
+        #{shoppingCode},
+        #{province},
+        #{city},
+        #{location},
+        #{storeAddress},
+        #{invitationCode},
+        #{storeAccountNumber},
+        #{shopownerName},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        1
+        )
+    </insert>
+
+    <!--获取店长姓名-->
+    <select id="storeName" resultType="com.xzsd.pc.storeManagement.entity.StoreGetName">
+        select userName as shopownerName
+        from t_user
+        where userId = #{shopownerId} and isdetele = 1
+    </select>
+
+    <!--查询门店列表，管理员权限查询-->
+    <select id="listStore" parameterType="com.xzsd.pc.storeManagement.entity.StoreDTO" resultType="com.xzsd.pc.storeManagement.entity.StoreVo">
+        select storeId,storeName,storePhone,storeAddress,invitationCode,storeAccountNumber,shopownerName,VERSION
+        from t_store
+        where
+        <if test="storeId != null and storeId != ''">
+            storeId = #{storeId} and
+        </if>
+        <if test="storeName != null and storeName != ''">
+            storeName like concat('%',#{storeName},'%') and
+        </if>
+        <if test="shopownerName != null and shopownerName != ''">
+            shopownerName like concat('%',#{shopownerName},'%') and
+        </if>
+        <if test="province != null and province != ''">
+            province = #{province} and
+        </if>
+        <if test="city != null and city != ''">
+            city = #{city} and
+        </if>
+        <if test="location != null and location != ''">
+            location = #{location} and
+        </if>
+        isdetele = 1
+    </select>
+
+    <!--查询门店列表，店长权限查询-->
+    <select id="listStoreForShopowner" resultType="com.xzsd.pc.storeManagement.entity.StoreVo">
+        select storeId,storeName,storePhone,storeAddress,invitationCode,storeAccountNumber,shopownerName,VERSION
+        from t_store
+        where
+        shopownerId = #{currentUserId} and isdetele = 1
+    </select>
+
+    <!--查看门店详情-->
+    <select id="findStore" resultType="com.xzsd.pc.storeManagement.entity.StoreVo">
+        select storeId,storeName,storePhone,storeAddress,invitationCode,storeAccountNumber,shopownerName,VERSION
+        from t_store
+        where
+        storeId = #{storeId} and isdetele = 1
+    </select>
+
+    <!--修改门店信息-->
+    <update id="updateStore" parameterType="com.xzsd.pc.storeManagement.entity.StoreDo">
+        update t_store
+        set
+        <if test="storePhone != null and storePhone != ''">
+            storePhone = #{storePhone},
+        </if>
+        <if test="storeName != null and storeName != ''">
+            storeName = #{storeName},
+        </if>
+        <if test="shopownerId != null and shopownerId != ''">
+            shopownerId = #{shopownerId},
+        </if>
+        <if test="shoppingCode != null and shoppingCode != ''">
+            shoppingCode = #{shoppingCode},
+        </if>
+        <if test="province != null and province != ''">
+            province = #{province},
+        </if>
+        <if test="city != null and city != ''">
+            city = #{city},
+        </if>
+        <if test="location != null and location != ''">
+            location = #{location},
+        </if>
+        <if test="storeAddress != null and storeAddress != ''">
+            storeAddress = #{storeAddress},
+        </if>
+        <if test="shopownerName != null and shopownerName != ''">
+            shopownerName = #{shopownerName},
+        </if>
+        modifiyTime = now(),
+        lastModifiyBy = #{lastModifiyBy},
+        version = version + 1
+        where
+        storeId = #{storeId} and isdetele = 1
+    </update>
+
+    <update id="deleteStore" parameterType="String">
+        update t_store
+        set
+        isdetele = 0,
+        modifiyTime = now(),
+        lastModifiyBy = #{currentUserId},
+        version = version + 1
+        where
+        storeId in
+        <foreach collection="storeId" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+
+
+</mapper>

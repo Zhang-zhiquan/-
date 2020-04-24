@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.pc.orderManagement.dao.OrderDao">
+
+    <!--查询订单列表-->
+    <select id="listOrder" resultType="com.xzsd.pc.orderManagement.entity.OrderVo" parameterType="com.xzsd.pc.orderManagement.entity.OrderDTO">
+        select
+        orderId,
+        orderTotalPrice,
+        orderState,
+        payState,
+        storeId,
+        shopingName,
+        shoppingPhone,
+        payTime
+        from t_order
+        where
+        <if test="shopingName != null and shopingName != ''">
+            shopingName = #{shopingName} and
+        </if>
+        <if test="orderId != null and orderId != ''">
+            orderId = #{orderId} and
+        </if>
+        <if test="shoppingPhone != null and shoppingPhone != ''">
+            shoppingPhone = #{shoppingPhone} and
+        </if>
+        <if test="orderState != null and orderState != ''">
+            orderState = #{orderState} and
+        </if>
+        <if test="payTimeStart != null and payTimeStart != '' and payTimeEnd == null or payTimeEnd == ''">
+            payTime > #{payTimeStart} and
+        </if>
+        <if test="storeId != null and storeId != ''">
+            storeId = #{storeId} and
+        </if>
+        <if test="payTimeStart != null and payTimeStart != '' and payTimeEnd != null and payTimeEnd != ''">
+            payTime between #{payTimeStart} and #{payTimeEnd} and
+        </if>
+        isdetele = 1
+        order by payTime desc
+    </select>
+
+    <!--获取当前登陆人的门店Id-->
+    <resultMap id="orderString" type="java.util.Map">
+        <result column="storeId" property="storeId" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="findUserId" parameterType="String" resultMap="orderString">
+        select storeId from t_store where shopownerId = #{currentUserId}
+    </select>
+
+    <!--修改订单状态-->
+    <update id="updateOrder">
+        update t_order
+        set
+        <if test="sign == 1">
+            orderState = 1,
+        </if>
+        <if test="sign == 2">
+            orderState = 2,
+        </if>
+        <if test="sign == 3">
+            orderState = 0,
+        </if>
+        <if test="sign == 4">
+            orderState = 3,
+        </if>
+        <if test="sign == 5">
+            orderState = 2,
+        </if>
+        version = version + 1
+        where
+        orderId in
+        <foreach collection="orderId" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and isdetele = 1
+    </update>
+
+    <!--查看订单详情-->
+    <select id="findOrder" resultType="com.xzsd.pc.orderManagement.entity.OrderDetailVo">
+        select
+        ordersId,
+        userId,
+        orderId,
+        goodsId,
+        goodsName,
+        purchaseNum,
+        totalPrice,
+        sale,
+        price
+        from t_order_details
+        where
+        orderId = #{orderId} and isdetele = 1
+    </select>
+</mapper>

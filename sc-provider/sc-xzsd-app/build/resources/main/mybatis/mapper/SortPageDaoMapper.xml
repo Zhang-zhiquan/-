@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.clientSortPage.dao.SortDao">
+    <!--查询商品一级目录-->
+    <select id="findFirstClass" resultType="com.xzsd.app.clientSortPage.entity.SortVo">
+        select
+        sortId,
+        sortName
+        from t_goods_sort
+        where
+        isDetele = 1
+        and isParent = 1
+    </select>
+
+    <!--展示二级分类商品-->
+    <resultMap id="sortgoods" type="com.xzsd.app.clientSortPage.entity.SortCollection">
+        <id column="sortId" property="secondSortId" jdbcType="VARCHAR"></id>
+        <result column="sortName" property="secondSortName" jdbcType="VARCHAR"></result>
+        <collection property="goodsList" ofType="com.xzsd.app.clientSortPage.entity.Goods">
+            <id column="goodsId" property="goodsId" jdbcType="VARCHAR"></id>
+            <result column="goodsName" property="goodsName" jdbcType="VARCHAR"></result>
+            <result column="goodsSale" property="goodsSale" jdbcType="DOUBLE"></result>
+            <result column="goodsPicture" property="goodsPicture" jdbcType="VARCHAR"></result>
+        </collection>
+    </resultMap>
+    <select id="showSecondClass" resultMap="sortgoods">
+        SELECT
+        tgs.sortName,tgs.sortId,
+        tg.goodsId,tg.goodsName,tg.goodsSale,tg.goodsPicture
+        from t_goods_sort tgs,t_goods tg
+        where tgs.sortId = tg.secondClass and tgs.parentId = #{sortId}
+        and tgs.isDetele = 1 and tg.isDetele = 1
+    </select>
+
+</mapper>

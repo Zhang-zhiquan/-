@@ -40,7 +40,7 @@ public class GoodsDo {
     /**
      * 商品状态：为下架，1为在售
      */
-    private int goodsStatus;
+    private Integer goodsStatus;
     /**
      * 出版社
      */
@@ -178,11 +178,11 @@ public class GoodsDo {
         this.goodsPrice = goodsPrice;
     }
 
-    public int getGoodsStatus() {
+    public Integer getGoodsStatus() {
         return goodsStatus;
     }
 
-    public void setGoodsStatus(int goodsStatus) {
+    public void setGoodsStatus(Integer goodsStatus) {
         this.goodsStatus = goodsStatus;
     }
 

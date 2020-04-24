@@ -3,14 +3,15 @@
 <mapper namespace="com.xzsd.pc.goodsManagement.dao.GoodsDao">
 
     <!--查询商品列表-->
-    <select id="goodsList" parameterType="com.xzsd.pc.goodsManagement.entity.GoodsDo" resultType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
+    <select id="goodsList" parameterType="com.xzsd.pc.goodsManagement.entity.GoodsDo" resultType="com.xzsd.pc.goodsManagement.entity.GoodsVo">
         select
         goodsName,
         goodsId,
-        goodsPrice,
+        goodsCostprice,
+        goodsSale,
         goodsSalesVolume,
-        firstClass,
-        secondClass,
+        (select sortName from t_goods_sort where sortId = firstClass) as firstClass,
+        (select sortName from t_goods_sort where sortId = secondClass) as secondClass,
         goodsAdvertising,
         goodsIntroduce,
         goodsStatus,
@@ -26,7 +27,7 @@
         <if test="goodsName != null and goodsName != ''">
           and goodsName like concat('%',#{goodsName},'%')
         </if>
-        <if test="goodsStatus != null and goodsStatus != '' and goodsStatus != 3">
+        <if test="goodsStatus != null and goodsStatus != ''">
             and goodsStatus = #{goodsStatus}
         </if>
         <if test="goodsAdvertising != null and goodsAdvertising != ''">
@@ -80,7 +81,7 @@
         #{secondClass},
         #{goodsAdvertising},
         #{goodsIntroduce},
-        #{goodsStatus},
+        2,
         0,
         0,
         now(),
@@ -101,14 +102,15 @@
     </insert>
 
     <!--查询商品详情-->
-    <select id="findGoods" resultType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
+    <select id="findGoods" resultType="com.xzsd.pc.goodsManagement.entity.GoodsVo">
         select
         goodsName,
         goodsId,
-        goodsPrice,
+        goodsCostprice,
+        goodsSale,
         goodsSalesVolume,
-        firstClass,
-        secondClass,
+        (select sortName from t_goods_sort where sortId = firstClass) as firstClass,
+        (select sortName from t_goods_sort where sortId = secondClass) as secondClass,
         goodsAdvertising,
         goodsIntroduce,
         goodsStatus,

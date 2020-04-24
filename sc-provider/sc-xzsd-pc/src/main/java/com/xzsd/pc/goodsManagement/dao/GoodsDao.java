@@ -1,6 +1,7 @@
 package com.xzsd.pc.goodsManagement.dao;
 
 import com.xzsd.pc.goodsManagement.entity.GoodsDo;
+import com.xzsd.pc.goodsManagement.entity.GoodsVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,7 +20,7 @@ public interface GoodsDao {
      * @param goodsDo
      * @return
      */
-    List<GoodsDo> goodsList(GoodsDo goodsDo);
+    List<GoodsVo> goodsList(GoodsDo goodsDo);
 
     /**
      * 添加商品
@@ -33,7 +34,7 @@ public interface GoodsDao {
      * @param goodsDo
      * @return
      */
-    GoodsDo findGoods(@Param("goodsId") String goodsId);
+    GoodsVo findGoods(@Param("goodsId") String goodsId);
 
     /**
      * 修改商品信息

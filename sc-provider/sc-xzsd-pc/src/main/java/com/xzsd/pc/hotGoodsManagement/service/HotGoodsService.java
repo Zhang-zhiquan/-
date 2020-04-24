@@ -3,6 +3,7 @@ package com.xzsd.pc.hotGoodsManagement.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.neusoft.security.client.utils.SecurityUtils;
+import com.sun.jersey.core.impl.provider.entity.XMLRootObjectProvider;
 import com.xzsd.pc.hotGoodsManagement.dao.HotGoodsDao;
 import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDTO;
 import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDo;
@@ -96,8 +97,8 @@ public class HotGoodsService {
      * @param num
      * @return
      */
-    public AppResponse updateHotGoodsNum(int num){
-        int count = hotGoodsDao.updateHotGoodsNum(num, SecurityUtils.getCurrentUserId());
+    public AppResponse updateHotGoodsNum(String num){
+        int count = hotGoodsDao.updateHotGoodsNum(Integer.valueOf(num), SecurityUtils.getCurrentUserId());
         if (count != 0){
             return AppResponse.success("展示数量修改成功");
         }else {
@@ -105,4 +106,35 @@ public class HotGoodsService {
         }
     }
 
+    /**
+     * 修改热门商品信息
+     * @param hotGoodsDo
+     * @return
+     */
+    public AppResponse updateGoods(HotGoodsDo hotGoodsDo){
+        //校验版本号是否已经被更改
+        if (hotGoodsDao.accoutVersion(hotGoodsDo.getHotGoodsId(),hotGoodsDo.getVersion()) <= 0){
+            return AppResponse.bizError("版本已改变，请刷新");
+        }
+        //校验热门商品是否已经存在
+        if (hotGoodsDo.getGoodsId() != null && !"".equals(hotGoodsDo.getGoodsId())){
+            if (hotGoodsDao.accoutGoodsId(hotGoodsDo.getGoodsId()) > 0){
+                return AppResponse.bizError("热门商品已存在，请重新输入");
+            }
+        }
+        //校验热卖商品排序是否已经存在
+        if (!"".equals(hotGoodsDo.getGoodsSort()) && hotGoodsDo.getGoodsSort() != 0){
+            if (hotGoodsDao.accoutGoodsSort(hotGoodsDo.getGoodsSort()) > 0){
+                return AppResponse.bizError("热卖商品排序已存在，请重新输入");
+            }
+        }
+        //修改热门商品信息
+        int count = hotGoodsDao.updateHotGoods(hotGoodsDo);
+        if (count != 0){
+            return AppResponse.success("热门商品修改成功");
+        }else {
+            return AppResponse.notFound("热门商品未修改");
+        }
+
+    }
 }

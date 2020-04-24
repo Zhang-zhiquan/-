@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.clientDriver.dao.DriverDao">
+    <!--展示司机负责的门店信息-->
+    <select id="showStore" resultType="com.xzsd.app.clientDriver.entity.StoreVo">
+        SELECT ts.storeId,ts.storeName,ts.storePhone,ts.shopownerName,
+        CONCAT((SELECT regionName FROM t_region WHERE regionId = ts.province),
+        (SELECT regionName FROM t_region WHERE regionId = ts.city),
+        (SELECT regionName FROM t_region WHERE regionId = ts.location),
+        ts.storeAddress) as detailAddress
+        FROM t_driver td
+        LEFT JOIN t_store ts
+        ON ts.location = td.location
+        WHERE
+        td.userId = #{currentUserId} AND ts.isdetele = 1 AND td.isdetele = 1
+    </select>
+
+</mapper>

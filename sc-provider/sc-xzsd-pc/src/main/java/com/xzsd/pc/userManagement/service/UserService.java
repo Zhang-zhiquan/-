@@ -5,9 +5,12 @@ import com.github.pagehelper.PageInfo;
 import com.neusoft.security.client.utils.SecurityUtils;
 import com.sun.jersey.core.impl.provider.entity.XMLRootObjectProvider;
 import com.xzsd.pc.userManagement.dao.UserDao;
+import com.xzsd.pc.userManagement.entity.TobarVo;
+import com.xzsd.pc.userManagement.entity.UserDTO;
 import com.xzsd.pc.userManagement.entity.UserInfo;
 import com.xzsd.pc.userManagement.entity.UserVo;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.PasswordUtils;
 import com.xzsd.pc.util.StringUtil;
 import com.xzsd.pc.util.TencentCosUtil;
 import org.springframework.stereotype.Service;
@@ -32,21 +35,21 @@ public class UserService {
 
     /**
      * 新增用户
-     * @param userInfo
+     * @param
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public AppResponse saveUser(UserInfo userInfo){
-        String imagesUrl = null;
+    public AppResponse saveUser(UserDTO userDTO){
         //检验账号是否存在
-        int countUserAcct = userDao.countUserAcct(userInfo.getUserAccount());
+        int countUserAcct = userDao.countUserAcct(userDTO.getUserAccount());
         if (0 != countUserAcct){
             return AppResponse.bizError("用户账号已存在，请重新输入账号");
         }
 
-        userInfo.setUserId(StringUtil.getCommonCode(2));
+        userDTO.setUserId(StringUtil.getCommonCode(2));
+        userDTO.setPassword(PasswordUtils.generatePassword(userDTO.getPassword()));
         //新增用户
-        int count = userDao.saveUser(userInfo);
+        int count = userDao.saveUser(userDTO);
         if(0 == count){
             return AppResponse.bizError("新增失败，请重试！");
         }
@@ -78,13 +81,10 @@ public class UserService {
      */
     public AppResponse listUsers(UserInfo userInfo){
         PageHelper.startPage(userInfo.getPageNum(),userInfo.getPageSize());
-        List<UserInfo> userInfiList = userDao.listUsersByPage(userInfo);
+        List<UserVo> userInfiList = userDao.listUsersByPage(userInfo);
         //包装Page对象
-        PageInfo<UserInfo> pageDate = new PageInfo<>(userInfiList);
+        PageInfo<UserVo> pageDate = new PageInfo<>(userInfiList);
         return AppResponse.success("查询成功",pageDate);
-//        List<UserInfo> userInfiList = userDao.listUsersByPage(userInfo);
-//        return AppResponse.success("查询成功",getPageInfo(userInfiList));
-
     }
 
     /**
@@ -94,13 +94,15 @@ public class UserService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse updateUser(UserInfo userInfo){
-        String imagesUrl = null;
         //判断要修改的账号是否已经存在
         int countUserAcct = userDao.countUserAcct(userInfo.getUserAccount());
         if (0 != countUserAcct){
             return AppResponse.bizError("用户账号已存在。请重新输入");
         }
 
+        if (userInfo.getPassword() != null && !"".equals(userInfo.getPassword())){
+            userInfo.setPassword(PasswordUtils.generatePassword(userInfo.getPassword()));
+        }
         if (userInfo.getUserId() != null && !" ".equals(userInfo.getUserId())){
             //修改用户信息
             int count = userDao.updateUser(userInfo);
@@ -130,7 +132,7 @@ public class UserService {
      */
     public AppResponse userTopbar(){
         String userId = SecurityUtils.getCurrentUserId();
-        UserVo userVo = userDao.userTobar(userId);
+        TobarVo userVo = userDao.userTobar(userId);
         if (userVo != null){
             return AppResponse.success("用户栏查询成功",userVo);
         }else {

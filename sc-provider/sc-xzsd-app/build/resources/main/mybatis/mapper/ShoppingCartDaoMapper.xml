@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.clientShoppingCart.dao.CartDao">
+    <!--添加购物车-->
+    <insert id="addShoppingCart" parameterType="com.xzsd.app.clientShoppingCart.entity.CartDo">
+        insert into t_shopping_cart
+        (
+        cartId,
+        customerId,
+        goodsId,
+        goodsAmount,
+        isdetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{cartId},
+        #{customerId},
+        #{goodsId},
+        #{goodsAmount},
+        1,
+        now(),
+        now(),
+        #{createBy},
+        #{lastModifiyBy},
+        0
+        )
+    </insert>
+
+    <!--展示购物车-->
+    <select id="showShoppingCart" resultType="com.xzsd.app.clientShoppingCart.entity.ShowCartVo">
+        select tsc.cartId,tsc.goodsId,tg.goodsName,tg.goodsSale,tg.goodsPicture,tsc.goodsAmount
+        from t_shopping_cart tsc
+        left join t_goods tg
+        on tsc.goodsId = tg.goodsId and tsc.isdetele = 1 and tg.isDetele = 1
+        where
+        tsc.isdetele = 1 and tg.isDetele = 1 and customerId = #{currentUserId}
+    </select>
+
+    <!--修改购物车商品数量-->
+    <update id="alterGoodsNumber">
+        update t_shopping_cart
+        set
+        goodsAmount = #{goodsAmount}
+        where
+        cartId = #{cartId} and isdetele = 1
+    </update>
+
+    <!--删除购物车-->
+    <update id="deleteShoppingCart">
+        update t_shopping_cart
+        set
+        isdetele = 0
+        where
+        cartId in
+        <foreach collection="cartId" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and customerId = #{customerId}
+    </update>
+
+    <!--获取门店Id-->
+    <resultMap id="storeId" type="java.util.Map">
+        <result column="storeId" property="storeId" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getStoreId" resultMap="storeId">
+        SELECT storeId
+        FROM t_store
+        WHERE invitationCode = #{invitationCode} AND isdetele = 1
+    </select>
+
+    <!--获取登录人信息-->
+    <resultMap id="userMess" type="java.util.Map">
+        <result column="userName" property="shoppingName" jdbcType="VARCHAR"></result>
+        <result column="phone" property="shoppingPhone" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getUserMess" resultMap="userMess">
+        select userName,phone
+        from t_user
+        where
+        userId = #{currentUserId} and isdetele = 1
+    </select>
+
+    <!--加入订单-->
+    <insert id="addOrder" parameterType="com.xzsd.app.clientShoppingCart.entity.OrderDo">
+        insert into t_order
+        (
+        orderId,
+        orderState,
+        payState,
+        payTime,
+        orderTotalPrice,
+        storeId,
+        customerId,
+        shopingName,
+        shoppingPhone,
+        isEvaluate,
+        isdetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{orderId},
+        0,
+        1,
+        now(),
+        #{orderTotalPrice},
+        #{storeId},
+        #{customerId},
+        #{shopingName},
+        #{shoppingPhone},
+        0,
+        1,
+        now(),
+        now(),
+        #{customerId},
+        #{customerId},
+        0
+        )
+    </insert>
+
+    <!--根据购物车Id获取商品详情-->
+    <select id="getGoods" resultType="com.xzsd.app.clientShoppingCart.entity.GoodsDetailDTO">
+        SELECT tsc.customerId,tsc.goodsId,tsc.goodsAmount,tg.goodsName,tg.goodsSale,tg.goodsCostprice,(tsc.goodsAmount * tg.goodsSale) AS totalPrice
+        FROM t_shopping_cart tsc
+        LEFT JOIN t_goods tg
+        ON tsc.goodsId = tg.goodsId
+        WHERE
+        tsc.isdetele = 1 AND tg.isdetele = 1 AND
+        cartId IN
+        <foreach collection="cartId" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <!--添加到订单详情表-->
+    <insert id="addOrderDetails" parameterType="com.xzsd.app.clientShoppingCart.entity.OrderDTO">
+        insert into t_order_details
+        (
+        ordersId,
+        userId,
+        orderId,
+        goodsId,
+        goodsName,
+        purchaseNum,
+        totalPrice,
+        sale,
+        price,
+        isdetele,
+        buildTime,
+        modifiyTime,
+        createBy,
+        lastModifiyBy,
+        version
+        ) values
+        (
+        #{ordersId},
+        #{userId},
+        #{orderId},
+        #{goodsId},
+        #{goodsName},
+        #{purchaseNum},
+        #{totalPrice},
+        #{sale},
+        #{price},
+        1,
+        now(),
+        now(),
+        #{userId},
+        #{userId},
+        0
+        )
+    </insert>
+</mapper>

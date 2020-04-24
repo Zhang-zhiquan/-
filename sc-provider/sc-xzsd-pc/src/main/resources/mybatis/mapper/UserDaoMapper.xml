@@ -7,7 +7,7 @@
     </select>
 
     <!--新增用户-->
-    <insert id="saveUser" parameterType="com.xzsd.pc.userManagement.entity.UserInfo">
+    <insert id="saveUser" parameterType="com.xzsd.pc.userManagement.entity.UserDTO">
         insert into t_user(
         userId,
         userAccount,
@@ -60,23 +60,16 @@
     </update>
 
     <!--查询用户列表-->
-    <select id="listUsersByPage" parameterType="com.xzsd.pc.userManagement.entity.UserInfo" resultType="com.xzsd.pc.userManagement.entity.UserInfo">
+    <select id="listUsersByPage" parameterType="com.xzsd.pc.userManagement.entity.UserInfo" resultType="com.xzsd.pc.userManagement.entity.UserVo">
         select
         userId,
         userAccount,
-        password,
         userName,
         role,
         sex,
         phone,
         email,
-        idCard,
-        isDetele,
-        buildTime,
-        modifiyTime,
-        createBy,
-        lastModifiyBy,
-        version
+        idCard
         from t_user
         where isDetele = 1
         <if test="userAccount != null and userAccount != ''">
@@ -85,7 +78,10 @@
         <if test="userName != null and userName != ''">
             and userName like concat('%',#{userName},'%')
         </if>
-        <if test="role != null and role !=''">
+        <if test="role == null or role == ''">
+            and role in (1,2)
+        </if>
+        <if test="role != null and role != ''">
             and role = #{role}
         </if>
         order by buildTime desc
@@ -119,11 +115,14 @@
         <if test="password != null and password !=''">
             password = #{password},
         </if>
+        <if test="role != null and role !=''">
+            role = #{role},
+        </if>
         modifiyTime = now(),
         lastModifiyBy = #{lastModifiyBy},
         version = version + 1
         where userId = #{userId}
-        and isDetele != 0
+        and isDetele = 1
     </update>
 
     <!--查看用户详情-->
@@ -153,11 +152,11 @@
     </select>
 
     <!--用户栏详情-->
-    <select id="userTopbar" resultType="com.xzsd.pc.userManagement.entity.UserVo" parameterType="String">
+    <select id="userTobar" resultType="com.xzsd.pc.userManagement.entity.TobarVo" parameterType="String">
         select
         userId,
         userName,
-        userPicture,
+        imagesUrl,
         role
         from t_user
         where

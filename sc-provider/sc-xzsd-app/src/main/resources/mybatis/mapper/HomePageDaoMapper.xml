@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.clientHomePage.dao.HomePageDao">
+    <!--获取登录用户角色-->
+    <resultMap id="roleIn" type="java.util.Map">
+        <result column="role" property="role" javaType="int" jdbcType="INTEGER"></result>
+        <result column="invitationCode" property="invitationCode" javaType="String" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getRoleInvitationCode" resultMap="roleIn">
+        select tu.role,tc.invitationCode
+        from t_customer tc
+        left join t_user tu
+        on tc.userId = tu.userId
+        where tc.userId = #{userId}
+        and tc.isDetele = 1 and tu.isDetele = 1
+    </select>
+
+    <!--统计用户账号数量-->
+    <select id="countUserAcct" parameterType="String" resultType="int">
+        SELECT COUNT(userId) FROM t_user WHERE isDetele = 1 AND userAccount = #{userAccount}
+    </select>
+
+    <!--注册客户信息存入用户表-->
+    <insert id="registerForUser" parameterType="com.xzsd.app.clientHomePage.entity.RegisterDo">
+        insert into t_user
+        (
+        userId,
+        userAccount,
+        password,
+        phone,
+        userName,
+        sex,
+        role,
+        idCard,
+        email,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        version
+        ) values
+        (
+        #{userId},
+        #{userAccount},
+        #{password},
+        #{phone},
+        #{userName},
+        #{sex},
+        4,
+        #{idCard},
+        #{email},
+        1,
+        now(),
+        now(),
+        0
+        )
+    </insert>
+
+    <!--注册客户信息存入顾客表-->
+    <insert id="registerForCustomer" parameterType="com.xzsd.app.clientHomePage.entity.RegisterDo">
+        insert into t_customer
+        (
+        customerId,
+        userId,
+        customerName,
+        invitationCode,
+        isDetele,
+        buildTime,
+        modifiyTime,
+        version
+        ) values
+        (
+        #{customerId},
+        #{userId},
+        #{userName},
+        #{invitationCode},
+        1,
+        now(),
+        now(),
+        0
+        )
+    </insert>
+
+    <!--查询轮播图-->
+    <select id="showRotationChart" resultType="com.xzsd.app.clientHomePage.entity.RotationVo">
+        select
+        pictureSort,
+        pictureRounte,
+        goodsId
+        from t_rotation_picture
+        where
+        NOW() between pictureStart and pictureEnd and pictureStatus = 1 and isdetele = 1
+        order by pictureSort asc
+    </select>
+
+    <!--查看热门商品展示数量-->
+    <resultMap id="goodsNum" type="java.util.Map">
+        <id column="hotGoodsNum" property="hotGoodsNum" jdbcType="INTEGER" javaType="int"></id>
+    </resultMap>
+    <select id="findHotGoodsNum" resultMap="goodsNum">
+        select hotGoodsNum
+        from t_hotnum
+        where isdetele = 1
+    </select>
+
+    <!--展示热门商品-->
+    <select id="showHotGoods" resultType="com.xzsd.app.clientHomePage.entity.HotGoodsVo">
+        select thg.goodsSort,thg.goodsId,tg.goodsName,tg.goodsSale
+        from t_hot_goods thg
+        left join t_goods tg
+        on thg.goodsId = tg.goodsId and thg.isdetele = 1 and tg.isDetele = 1
+        order by thg.goodsSort asc limit #{hotGoodsNum}
+    </select>
+
+    <!--查看商品详情-->
+    <resultMap id="goods" type="java.util.Map">
+        <result column="goodsName" property="goodsName" jdbcType="VARCHAR" javaType="String"></result>
+        <result column="goodsPicture" property="goodsPicture" jdbcType="VARCHAR" javaType="String"></result>
+        <result column="goodsAdvertising" property="goodsAdvertising" jdbcType="VARCHAR" javaType="String"></result>
+        <result column="goodsSale" property="goodsSale" jdbcType="DOUBLE" javaType="double"></result>
+        <result column="goodsId" property="goodsId" jdbcType="VARCHAR" javaType="String"></result>
+    </resultMap>
+    <select id="findGoods" resultMap="goods">
+        select
+        goodsName,
+        goodsPicture,
+        goodsAdvertising,
+        goodsSale,
+        goodsId
+        from t_goods
+        where goodsId = #{goodsId} and isdetele = 1
+    </select>
+
+    <!--通过邀请码获取门店信息-->
+    <resultMap id="store" type="java.util.Map">
+        <result column="storeId" property="storeId" javaType="String"></result>
+        <result column="storeName" property="storeName" javaType="String"></result>
+    </resultMap>
+    <select id="findStore" resultMap="store">
+        select storeId,storeName
+        from t_store
+        where
+        invitationCode = #{invitationCode}
+        and isdetele = 1
+    </select>
+</mapper>

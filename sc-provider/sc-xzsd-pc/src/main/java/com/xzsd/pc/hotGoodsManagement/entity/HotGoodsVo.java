@@ -39,6 +39,10 @@ public class HotGoodsVo {
      * 商品介绍
      */
     private String goodsIntroduce;
+    /**
+     * 版本号
+     */
+    private int version;
 
     public String getHotGoodsId() {
         return hotGoodsId;
@@ -102,5 +106,13 @@ public class HotGoodsVo {
 
     public void setPageNum(int pageNum) {
         this.pageNum = pageNum;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 }

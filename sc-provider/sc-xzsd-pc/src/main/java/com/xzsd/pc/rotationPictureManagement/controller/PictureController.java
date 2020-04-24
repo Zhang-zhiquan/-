@@ -100,7 +100,7 @@ public class PictureController {
         }
     }
 
-    @RequestMapping(value = "findgoods")
+    @RequestMapping(value = "findGoods")
     public AppResponse findGoods(String goodsId,String goodsName){
         try{
             return pictureService.findGoods(goodsId,goodsName);
@@ -109,6 +109,5 @@ public class PictureController {
             System.out.println(e.toString());
             throw  e;
         }
-
     }
 }

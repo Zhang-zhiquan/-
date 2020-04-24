@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.clientStore.dao.StoreDao">
+    <!--获取店长信息-->
+    <resultMap id="storeMess" type="java.util.Map">
+        <id column="storeId" property="storeId" jdbcType="VARCHAR"></id>
+        <result column="storeName" property="storeName" jdbcType="VARCHAR"></result>
+        <result column="province" property="province" jdbcType="VARCHAR"></result>
+        <result column="city" property="city" jdbcType="VARCHAR"></result>
+        <result column="location" property="location" jdbcType="VARCHAR"></result>
+        <result column="storeAddress" property="storeAddress" jdbcType="VARCHAR"></result>
+        <result column="invitationCode" property="invitationCode" jdbcType="VARCHAR"></result>
+        <result column="userName" property="userName" jdbcType="VARCHAR"></result>
+        <result column="imagesUrl" property="imagesUrl" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="showShopowner" resultMap="storeMess">
+        SELECT storeId,storeName,
+        (SELECT regionName FROM t_region WHERE regionId = province) AS province,
+        (SELECT regionName FROM t_region WHERE regionId = city) AS city,
+        (SELECT regionName FROM t_region WHERE regionId = location) AS location,
+        storeAddress,invitationCode,
+        (SELECT userName FROM t_user WHERE userId = shopownerId) AS userName,
+        (SELECT imagesUrl FROM t_user WHERE userId = shopownerId) AS imagesUrl
+        FROM t_store
+        WHERE shopownerId = #{currentUserId} AND isdetele = 1
+    </select>
+
+    <!--获取门店的司机-->
+    <resultMap id="driver" type="java.util.Map">
+        <result column="userName" property="driverName" jdbcType="VARCHAR"></result>
+        <result column="phone" property="phone" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="showDriver" resultMap="driver">
+        SELECT
+        (SELECT userName FROM t_user WHERE userId = td.userId) AS userName,
+        (SELECT phone FROM t_user WHERE userId = td.userId) AS phone
+        FROM t_store ts,t_driver td
+        WHERE ts.location = td.location AND shopownerId = #{currentUserId}
+        AND ts.isdetele = 1 AND td.isdetele = 1
+    </select>
+
+    <!--获取登录人门店Id-->
+    <resultMap id="storeId" type="java.util.Map">
+        <result column="storeId" property="storeId" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getStoreId" resultMap="storeId">
+        select storeId from t_store where shopownerId = #{currentUserId} and isdetele = 1
+    </select>
+
+    <!--店长查看订单列表-->
+    <resultMap id="order" type="com.xzsd.app.clientStore.entity.OrderMessVo">
+        <id column="orderId" property="orderId" jdbcType="VARCHAR"></id>
+        <result column="orderState" property="orderState" jdbcType="INTEGER"></result>
+        <result column="shopingName" property="shopingName" jdbcType="VARCHAR"></result>
+        <result column="shoppingPhone" property="shoppingPhone" jdbcType="VARCHAR"></result>
+        <result column="orderTotalPrice" property="orderTotalPrice" jdbcType="DOUBLE"></result>
+        <collection property="orderList" ofType="com.xzsd.app.clientStore.entity.OrderMessDetail">
+            <result column="goodsPicture" property="goodsPicture" jdbcType="VARCHAR"></result>
+            <result column="goodsAdvertising" property="goodsAdvertising" jdbcType="VARCHAR"></result>
+            <result column="goodsName" property="goodsName" jdbcType="VARCHAR"></result>
+            <result column="goodsId" property="goodsId" jdbcType="VARCHAR"></result>
+            <result column="sale" property="sale" jdbcType="DOUBLE"></result>
+            <result column="purchaseNum" property="purchaseNum" jdbcType="INTEGER"></result>
+        </collection>
+    </resultMap>
+    <select id="showOrder" resultMap="order">
+        SELECT td.orderId,td.orderState,td.orderTotalPrice,td.shopingName,td.shoppingPhone,
+        tod.goodsId,tod.goodsName,tod.purchaseNum,tod.sale,
+        (SELECT goodsAdvertising FROM t_goods WHERE goodsId = tod.goodsId) AS goodsAdvertising,
+        (SELECT goodsPicture FROM t_goods WHERE goodsId = tod.goodsId) AS goodsPicture
+        FROM t_order td
+        LEFT JOIN t_order_details tod
+        ON td.orderId = tod.orderId
+        WHERE
+        <if test="sign == 1">
+            td.payTime = 1 and
+        </if>
+        <if test="sign == 2">
+            td.orderState = 0 and
+        </if>
+        <if test="sign == 3">
+            td.orderState in (2,3) and
+        </if>
+        storeId = #{storeId} AND td.isdetele = 1 AND tod.isdetele = 1
+    </select>
+
+    <!--查看订单详情-->
+    <resultMap id="orderDetails" type="com.xzsd.app.clientStore.entity.OrderDetails">
+        <id column="orderId" property="orderId" jdbcType="VARCHAR"></id>
+        <result column="orderState" property="orderState" jdbcType="INTEGER"></result>
+        <result column="shopingName" property="shopingName" jdbcType="VARCHAR"></result>
+        <result column="shoppingPhone" property="shoppingPhone" jdbcType="VARCHAR"></result>
+        <result column="buildTime" property="buildTime" jdbcType="VARCHAR"></result>
+        <result column="orderTotalPrice" property="orderTotalPrice" jdbcType="DOUBLE"></result>
+        <collection property="orderList" ofType="com.xzsd.app.clientStore.entity.OrderInfo">
+            <result column="goodsPicture" property="goodsPicture" jdbcType="VARCHAR"></result>
+            <result column="goodsAdvertising" property="goodsAdvertising" jdbcType="VARCHAR"></result>
+            <result column="goodsName" property="goodsName" jdbcType="VARCHAR"></result>
+            <result column="goodsId" property="goodsId" jdbcType="VARCHAR"></result>
+            <result column="sale" property="sale" jdbcType="DOUBLE"></result>
+            <result column="purchaseNum" property="purchaseNum" jdbcType="INTEGER"></result>
+        </collection>
+    </resultMap>
+    <select id="showOrderDetails" resultMap="orderDetails">
+        SELECT td.orderId,td.orderState,td.orderTotalPrice,td.shopingName,td.shoppingPhone,td.buildTime,
+        tod.goodsName,tod.purchaseNum,tod.sale,tod.goodsId,
+        (SELECT goodsAdvertising FROM t_goods WHERE goodsId = tod.goodsId) AS goodsAdvertising,
+        (SELECT goodsPicture FROM t_goods WHERE goodsId = tod.goodsId) AS goodsPicture
+        FROM t_order td
+        LEFT JOIN t_order_details tod
+        ON td.orderId = tod.orderId
+        WHERE
+        td.orderId = #{orderId} AND td.isdetele = 1 AND tod.isdetele = 1
+    </select>
+
+    <!--更改订单状态-->
+    <update id="alterOrderState">
+        update t_order
+        <if test="sign == 1">
+            set orderState = 1
+        </if>
+        <if test="sign == 2">
+            set orderState = 2
+        </if>
+        <if test="sign == 3">
+            set orderState = 4
+        </if>
+        where
+        orderId = #{orderId} and isdetele = 1
+    </update>
+
+    <!--获取订单状态-->
+    <resultMap id="state" type="java.util.Map">
+        <result column="orderState" property="orderState" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getOrderState" resultMap="state">
+        select orderState from t_order where orderId = #{orderId} and isdetele = 1
+    </select>
+</mapper>

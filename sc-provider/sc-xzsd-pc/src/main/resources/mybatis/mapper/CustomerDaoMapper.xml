@@ -15,9 +15,7 @@
         from t_customer cus
         left join t_user us
         ON cus.userId = us.userId
-        <if test="customerName != null and customerName != '' or customerAccount != null and customerAccount != ''">
-            where
-        </if>
+        where
         <if test="customerName != null and customerName != ''">
             us.userName like concat('%',#{customerName},'%') and
         </if>
@@ -25,6 +23,7 @@
             us.userAccount like concat('%',#{customerAccount},'%') and
         </if>
         us.isdetele = 1
+        order by cus.buildTime desc
     </select>
 
     <!--查询客户详情-->

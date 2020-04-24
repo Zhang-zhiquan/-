@@ -40,6 +40,11 @@ public class HotGoodsController {
         }
     }
 
+    /**
+     * 热门商品列表查询
+     * @param hotGoodsDTO
+     * @return
+     */
     @RequestMapping(value = "listHotGoods")
     public AppResponse listHotGoods(HotGoodsDTO hotGoodsDTO){
         try{
@@ -67,6 +72,10 @@ public class HotGoodsController {
         }
     }
 
+    /**
+     * 查找热门商品展示数量
+     * @return
+     */
     @RequestMapping(value = "findHotGoodsNum")
     public AppResponse findHotGoodsNum(){
         try{
@@ -78,8 +87,13 @@ public class HotGoodsController {
         }
     }
 
+    /**
+     * 修改热门展示数量
+     * @param num
+     * @return
+     */
     @RequestMapping(value = "updateHotGoodsNum")
-    public AppResponse updateHotGoodsNum(int num){
+    public AppResponse updateHotGoodsNum(String num){
         try{
             return hotGoodsService.updateHotGoodsNum(num);
         }catch (Exception e){
@@ -88,4 +102,16 @@ public class HotGoodsController {
             throw e;
         }
     }
+
+    @RequestMapping(value = "updateHotGoods")
+    public AppResponse updateGoods(HotGoodsDo hotGoodsDo){
+        try{
+            return hotGoodsService.updateGoods(hotGoodsDo);
+        }catch (Exception e){
+            logger.error("修改热门失败",e);
+            System.out.println(e.toString());
+            throw e;
+        }
+    }
+
 }

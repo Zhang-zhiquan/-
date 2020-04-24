@@ -41,6 +41,13 @@ public interface HotGoodsDao {
     public int accoutGoodsId(@Param("goodsId") String goodsId);
 
     /**
+     * 校验版本号
+     * @param version
+     * @return
+     */
+    public int accoutVersion(@Param("hotGoodsId") String hotGoodsId,@Param("version") int version);
+
+    /**
      * 查询商品列表
      * @param hotGoodsDTO
      * @return
@@ -68,5 +75,12 @@ public interface HotGoodsDao {
      * @return
      */
     public int updateHotGoodsNum(@Param("num") int num,@Param("currentUserId") String currentUserId);
+
+    /**
+     * 修改热门商品信息
+     * @param hotGoodsDTO
+     * @return
+     */
+    public int updateHotGoods(HotGoodsDo hotGoodsDo);
 
 }

@@ -51,14 +51,10 @@ public class PictureService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse addPicture(PictureDo pictureDo){
-        //判断新添加的排序是否已经存在
-//        int pictureSort = pictureDo.getPictureSort();
         if (pictureDao.accountSort(pictureDo.getPictureSort()) > 0){
             return AppResponse.bizError("轮播图排序已存在，请重新输入");
         }
-
         //判断轮播图商品是否已经存在
-//        String goodsId = pictureDo.getGoodsId();
         if (pictureDao.accountGoodsId(pictureDo.getGoodsId()) > 0){
             return AppResponse.bizError("轮播图商品已存在，请重新输入");
         }

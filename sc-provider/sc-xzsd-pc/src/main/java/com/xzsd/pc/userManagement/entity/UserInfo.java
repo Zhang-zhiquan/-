@@ -36,7 +36,7 @@ public class UserInfo {
     /**
      * 用户性别
      */
-    private int sex;
+    private Integer sex;
     /**
      * 用户手机号
      */
@@ -56,7 +56,7 @@ public class UserInfo {
     /**
      * 用户角色：管理员'1',店长'2',司机'3',客户'4'
      */
-    private int role;
+    private Integer role;
     /**
      * 作废标记：0作废，1存在
      */
@@ -130,14 +130,6 @@ public class UserInfo {
         this.password = password;
     }
 
-    public int getSex() {
-        return sex;
-    }
-
-    public void setSex(int sex) {
-        this.sex = sex;
-    }
-
     public String getPhone() {
         return phone;
     }
@@ -168,14 +160,6 @@ public class UserInfo {
 
     public void setIdCard(String idCard) {
         this.idCard = idCard;
-    }
-
-    public int getRole() {
-        return role;
-    }
-
-    public void setRole(int role) {
-        this.role = role;
     }
 
     public int getIsDelete() {
@@ -224,5 +208,20 @@ public class UserInfo {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public Integer getRole() {
+        return role;
+    }
+    public void setRole(Integer Role) {
+        this.role = Role;
+    }
+
+    public Integer getSex() {
+        return sex;
+    }
+
+    public void setSex(Integer sex) {
+        this.sex = sex;
     }
 }

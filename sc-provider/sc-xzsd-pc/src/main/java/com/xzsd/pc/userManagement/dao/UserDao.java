@@ -1,5 +1,7 @@
 package com.xzsd.pc.userManagement.dao;
 
+import com.xzsd.pc.userManagement.entity.TobarVo;
+import com.xzsd.pc.userManagement.entity.UserDTO;
 import com.xzsd.pc.userManagement.entity.UserInfo;
 import com.xzsd.pc.userManagement.entity.UserVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -27,7 +29,7 @@ public interface UserDao {
      * @param userInfo
      * @return
      */
-    int saveUser(UserInfo userInfo);
+    int saveUser(UserDTO userDTO);
 
     /**
      * 删除用户
@@ -42,7 +44,7 @@ public interface UserDao {
      * @param userInfo
      * @return
      */
-    List<UserInfo> listUsersByPage(UserInfo userInfo);
+    List<UserVo> listUsersByPage(UserInfo userInfo);
 
     /**
      * 修改用户信息
@@ -63,6 +65,6 @@ public interface UserDao {
      * @param userId
      * @return
      */
-    UserVo userTobar(String userId);
+    TobarVo userTobar(String userId);
 
 }

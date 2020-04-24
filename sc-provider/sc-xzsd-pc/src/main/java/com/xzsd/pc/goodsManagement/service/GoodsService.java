@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xzsd.pc.goodsManagement.dao.GoodsDao;
 import com.xzsd.pc.goodsManagement.entity.GoodsDo;
+import com.xzsd.pc.goodsManagement.entity.GoodsVo;
 import com.xzsd.pc.util.AppResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,8 +35,8 @@ public class GoodsService {
      */
     public AppResponse goodsList(GoodsDo goodsDo){
         PageHelper.startPage(goodsDo.getPageNum(),goodsDo.getPageSize());
-        List<GoodsDo> goodsDos = goodsDao.goodsList(goodsDo);
-        PageInfo<GoodsDo> pageDate = new PageInfo<>(goodsDos);
+        List<GoodsVo> goodsDos = goodsDao.goodsList(goodsDo);
+        PageInfo<GoodsVo> pageDate = new PageInfo<>(goodsDos);
         return AppResponse.success("查询成功",pageDate);
     }
 
@@ -61,7 +62,7 @@ public class GoodsService {
      * @return
      */
     public AppResponse findGoods(String goodsId) {
-        GoodsDo goods = goodsDao.findGoods(goodsId);
+        GoodsVo goods = goodsDao.findGoods(goodsId);
         return AppResponse.success("查询成功",goods);
     }
 
