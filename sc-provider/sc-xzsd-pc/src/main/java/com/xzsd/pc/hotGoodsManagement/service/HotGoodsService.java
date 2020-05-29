@@ -5,11 +5,9 @@ import com.github.pagehelper.PageInfo;
 import com.neusoft.security.client.utils.SecurityUtils;
 import com.sun.jersey.core.impl.provider.entity.XMLRootObjectProvider;
 import com.xzsd.pc.hotGoodsManagement.dao.HotGoodsDao;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDTO;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDo;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsNum;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsVo;
+import com.xzsd.pc.hotGoodsManagement.entity.*;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
 import com.xzsd.pc.util.UUIDUtils;
 import org.springframework.stereotype.Service;
 
@@ -34,16 +32,18 @@ public class HotGoodsService {
      * @return
      */
     public AppResponse addHotGoods(HotGoodsDo hotGoodsDo){
-        hotGoodsDo.setHotGoodsId(UUIDUtils.getUUID());
+        hotGoodsDo.setHotGoodsId(StringUtil.getCommonCode(2));
         hotGoodsDo.setCreateBy(SecurityUtils.getCurrentUserId());
         hotGoodsDo.setLastModifiyBy(SecurityUtils.getCurrentUserId());
+        //校验商品排序是否已经存在
         if (hotGoodsDao.accoutGoodsSort(hotGoodsDo.getGoodsSort()) > 0){
             return AppResponse.bizError("热门商品排序已存在");
         }
+        //校验热门商品是否已经存在
         if (hotGoodsDao.accoutGoodsId(hotGoodsDo.getGoodsId()) > 0){
             return AppResponse.bizError("热门商品已存在");
         }
-
+        //添加热门商品
         int count = hotGoodsDao.addHotGoods(hotGoodsDo);
         if (count == 0){
             return AppResponse.bizError("热门商品未添加");
@@ -112,10 +112,6 @@ public class HotGoodsService {
      * @return
      */
     public AppResponse updateGoods(HotGoodsDo hotGoodsDo){
-        //校验版本号是否已经被更改
-        if (hotGoodsDao.accoutVersion(hotGoodsDo.getHotGoodsId(),hotGoodsDo.getVersion()) <= 0){
-            return AppResponse.bizError("版本已改变，请刷新");
-        }
         //校验热门商品是否已经存在
         if (hotGoodsDo.getGoodsId() != null && !"".equals(hotGoodsDo.getGoodsId())){
             if (hotGoodsDao.accoutGoodsId(hotGoodsDo.getGoodsId()) > 0){
@@ -123,7 +119,7 @@ public class HotGoodsService {
             }
         }
         //校验热卖商品排序是否已经存在
-        if (!"".equals(hotGoodsDo.getGoodsSort()) && hotGoodsDo.getGoodsSort() != 0){
+        if (!"".equals(hotGoodsDo.getGoodsSort()) && hotGoodsDo.getGoodsSort() != null){
             if (hotGoodsDao.accoutGoodsSort(hotGoodsDo.getGoodsSort()) > 0){
                 return AppResponse.bizError("热卖商品排序已存在，请重新输入");
             }
@@ -135,6 +131,15 @@ public class HotGoodsService {
         }else {
             return AppResponse.notFound("热门商品未修改");
         }
+    }
 
+    /**
+     * 查找商品信息
+     * @param hotGoodsId
+     * @return
+     */
+    public AppResponse findGoods(String hotGoodsId){
+        HotGoodsDetail goods = hotGoodsDao.findGoods(hotGoodsId);
+        return AppResponse.success("查询成功",goods);
     }
 }

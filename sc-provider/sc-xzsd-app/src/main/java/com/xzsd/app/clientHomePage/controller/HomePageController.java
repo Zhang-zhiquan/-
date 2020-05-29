@@ -39,6 +39,11 @@ public class HomePageController {
         }
     }
 
+    /**
+     * 客户注册
+     * @param registerDo
+     * @return
+     */
     @RequestMapping(value = "registerCustomer")
     public AppResponse registerCustomer(RegisterDo registerDo){
         try{
@@ -61,6 +66,10 @@ public class HomePageController {
         }
     }
 
+    /**
+     * 展示热门商品
+     * @return
+     */
     @RequestMapping(value = "showHotGoods")
     public AppResponse showHotGoods(){
         try{
@@ -72,10 +81,15 @@ public class HomePageController {
         }
     }
 
+    /**
+     * 获取商品详情信息
+     * @param goodsId
+     * @return
+     */
     @RequestMapping(value = "showGoods")
-    public AppResponse showGoods(String goodsId,String invitationCode){
+    public AppResponse showGoods(String goodsId){
         try{
-            return homePageService.showGoods(goodsId,invitationCode);
+            return homePageService.showGoods(goodsId);
         }catch (Exception e){
             logger.error("查询热门商品异常",e);
             System.out.println(e.toString());

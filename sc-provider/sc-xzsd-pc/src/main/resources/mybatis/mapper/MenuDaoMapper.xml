@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xzsd.pc.menuManagement.dao.MenuDao">
+    <!--查看是否有相同的菜单名-->
+    <select id="accoutMenu" resultType="int">
+        select count(menuId) from t_menu where menuName = #{menuName} and isdetele = 1
+    </select>
     <!--新增菜单-->
     <insert id="addMenu" parameterType="com.xzsd.pc.menuManagement.entity.MenuDo">
         insert into t_menu
@@ -67,21 +71,23 @@
     <select id="MenuManagementList" resultType="com.xzsd.pc.menuManagement.entity.MenuVo">
         select
         menuId,
-        menuName
+        menuName,
+        menuRoute
         from
         t_menu
         where
-        isDetele = 1
+        isDetele = 1 order by buildTime asc
     </select>
 
     <!--查询店长菜单列表-->
     <select id="MenuShopperList" resultType="com.xzsd.pc.menuManagement.entity.MenuVo">
         select
         menuId,
-        menuName
+        menuName,
+        menuRoute
         from t_menu
         where
-        menuName in ("客户管理","订单管理","门店信息管理","司机信息管理") and isdetele = 1
+        menuName in ("客户管理","订单管理","门店信息管理","司机信息管理") and isdetele = 1 order by buildTime asc
     </select>
 
     <!--查看菜单详情-->

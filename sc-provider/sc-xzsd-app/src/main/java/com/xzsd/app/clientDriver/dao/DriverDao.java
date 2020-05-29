@@ -4,6 +4,7 @@ import com.xzsd.app.clientDriver.entity.StoreVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -19,4 +20,11 @@ public interface DriverDao {
      * @return
      */
     public List<StoreVo> showStore(String currentUserId);
+
+    /**
+     * 查询司机信息
+     * @param currentUserId
+     * @return
+     */
+    public Map<String,String> showDriver(String currentUserId);
 }

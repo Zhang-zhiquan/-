@@ -1,9 +1,6 @@
 package com.xzsd.pc.hotGoodsManagement.dao;
 
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDTO;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDo;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsNum;
-import com.xzsd.pc.hotGoodsManagement.entity.HotGoodsVo;
+import com.xzsd.pc.hotGoodsManagement.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -82,5 +79,7 @@ public interface HotGoodsDao {
      * @return
      */
     public int updateHotGoods(HotGoodsDo hotGoodsDo);
+
+    public HotGoodsDetail findGoods(String hotGoodsId);
 
 }

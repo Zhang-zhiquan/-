@@ -1,11 +1,15 @@
 package com.xzsd.pc.rotationPictureManagement.service;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.neusoft.security.client.utils.SecurityUtils;
 import com.xzsd.pc.rotationPictureManagement.dao.PictureDao;
 import com.xzsd.pc.rotationPictureManagement.entity.GoodsVo;
 import com.xzsd.pc.rotationPictureManagement.entity.PictureDo;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
+import com.xzsd.pc.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +55,9 @@ public class PictureService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse addPicture(PictureDo pictureDo){
+        pictureDo.setPictureId(StringUtil.getCommonCode(2));
+        pictureDo.setCreateBy(SecurityUtils.getCurrentUserId());
+        //判断轮播图是否已经存在
         if (pictureDao.accountSort(pictureDo.getPictureSort()) > 0){
             return AppResponse.bizError("轮播图排序已存在，请重新输入");
         }
@@ -58,7 +65,7 @@ public class PictureService {
         if (pictureDao.accountGoodsId(pictureDo.getGoodsId()) > 0){
             return AppResponse.bizError("轮播图商品已存在，请重新输入");
         }
-
+        //添加轮播图
         int count = pictureDao.addPicture(pictureDo);
         if (count != 0){
             return AppResponse.success("轮播图添加成功");
@@ -107,10 +114,12 @@ public class PictureService {
      * @param goodsName
      * @return
      */
-    public AppResponse findGoods(String goodsId,String goodsName){
+    public AppResponse findGoods(String goodsId,String goodsName,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum, pageSize);
         List<GoodsVo> goods = pictureDao.findGoods(goodsId, goodsName);
+        PageInfo<GoodsVo> goodsVoPageInfo = new PageInfo<>(goods);
         if (goods != null){
-            return AppResponse.success("查询成功",goods);
+            return AppResponse.success("查询成功",goodsVoPageInfo);
         }else{
             return AppResponse.bizError("未查询到数据");
         }

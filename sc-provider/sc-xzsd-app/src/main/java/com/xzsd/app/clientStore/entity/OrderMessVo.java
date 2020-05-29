@@ -14,6 +14,7 @@ public class OrderMessVo {
     private String shopingName;
     private String shoppingPhone;
     private Double orderTotalPrice;
+    private int totall;
     private List<OrderMessDetail> orderList;
 
     public String getOrderId() {
@@ -62,5 +63,13 @@ public class OrderMessVo {
 
     public void setOrderList(List<OrderMessDetail> orderList) {
         this.orderList = orderList;
+    }
+
+    public int getTotall() {
+        return totall;
+    }
+
+    public void setTotall(int totall) {
+        this.totall = totall;
     }
 }

@@ -31,7 +31,7 @@ public interface GoodsDao {
 
     /**
      * 查看商品详情
-     * @param goodsDo
+     * @param goodsId
      * @return
      */
     GoodsVo findGoods(@Param("goodsId") String goodsId);
@@ -58,6 +58,14 @@ public interface GoodsDao {
      * @return
      */
     int deleteGoods(@Param("goodsId") List<String> goodsId, @Param("currentUserId") String currentUserId);
+
+    /**
+     * 商品上架下架
+     * @param goodsId
+     * @param sign
+     * @return
+     */
+    int updateGoodsState(@Param("goodsId") List<String> goodsId,@Param("sign") int sign);
 
 
 }

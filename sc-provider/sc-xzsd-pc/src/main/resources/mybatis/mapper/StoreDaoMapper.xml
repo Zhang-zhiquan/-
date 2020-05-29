@@ -172,6 +172,7 @@
         storeId = #{storeId} and isdetele = 1
     </update>
 
+    <!--删除店面-->
     <update id="deleteStore" parameterType="String">
         update t_store
         set
@@ -186,6 +187,26 @@
         </foreach>
     </update>
 
+    <!--查询店长-->
+    <select id="findShopwner" resultType="com.xzsd.pc.storeManagement.entity.ShopnerVo" parameterType="com.xzsd.pc.storeManagement.entity.ShopnerDTO">
+        SELECT userId,userAccount,userName,role,sex
+        FROM t_user
+        WHERE
+        <if test="userAccount != null and userAccount != ''">
+            userAccount like concat('%',#{userAccount},'%') and
+        </if>
+        <if test="userName != null and userName != ''">
+            userName like concat('%',#{userName},'%') and
+        </if>
+        role = 2 AND isdetele = 1
+    </select>
 
+    <!--查询当前登录人角色-->
+    <resultMap id="findRole" type="java.util.Map">
+        <result column="role" property="role" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="findCurrentRole" resultMap="findRole">
+        select role from t_user where userId = #{userId} and isdetele = 1
+    </select>
 
 </mapper>

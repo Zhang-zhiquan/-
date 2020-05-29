@@ -13,6 +13,7 @@ security:
       access-token-uri: http://sc-security-uaa/oauth/token
       user-authorization-uri: http://sc-security-uaa/oauth/authorize
   sessions: stateless
+  ignored: /customer/registerCustomer
 spring:
   redis:
     host: 127.0.0.1
@@ -60,8 +61,9 @@ mybatis:
   config-location: classpath:mybatis/mybatis-config.xml
 sc:
   cloud:
-    dev: true
-#    debug: true
+#    dev: true
+    debug: true
+
     task:
       core-pool-size: 20
       max-pool-size: 50

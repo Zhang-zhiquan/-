@@ -23,6 +23,18 @@ public class CustomerDTO {
      * 客户账号
      */
     private String customerAccount;
+    /**
+     * 邀请码
+     */
+    private String invitationCode;
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
 
     public int getPageNum() {
         return pageNum;

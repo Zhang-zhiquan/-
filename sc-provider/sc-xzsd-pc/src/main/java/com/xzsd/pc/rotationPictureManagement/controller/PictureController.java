@@ -55,8 +55,6 @@ public class PictureController {
     @RequestMapping(value = "addPicture")
     public AppResponse addPicture(PictureDo pictureDo){
         try{
-            pictureDo.setPictureId(UUIDUtils.getUUID());
-            pictureDo.setCreateBy(SecurityUtils.getCurrentUserId());
             return pictureService.addPicture(pictureDo);
         }catch (Exception e){
             logger.error("添加轮播图失败",e);
@@ -100,10 +98,18 @@ public class PictureController {
         }
     }
 
+    /**
+     * 查找商品
+     * @param goodsId
+     * @param goodsName
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @RequestMapping(value = "findGoods")
-    public AppResponse findGoods(String goodsId,String goodsName){
+    public AppResponse findGoods(String goodsId,String goodsName,int pageNum,int pageSize){
         try{
-            return pictureService.findGoods(goodsId,goodsName);
+            return pictureService.findGoods(goodsId,goodsName,pageNum,pageSize);
         }catch (Exception e){
             logger.error("查找商品失败",e);
             System.out.println(e.toString());

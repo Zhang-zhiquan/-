@@ -32,8 +32,9 @@ public class OrderService {
      * @return
      */
     public AppResponse listOrder(OrderDTO orderDTO){
-        //管理员权限查询
-        if (orderDTO.getRole() == 1){
+        int role = orderDao.findCurrentRole(SecurityUtils.getCurrentUserId()).get("role");
+        //管理员权限查询，查看全都订单
+        if (role == 1){
             PageHelper.startPage(orderDTO.getPageNum(),orderDTO.getPageSize());
             List<OrderVo> orderDos = orderDao.listOrder(orderDTO);
             PageInfo<OrderVo> orderDoPageInfo = new PageInfo<>(orderDos);
@@ -43,14 +44,14 @@ public class OrderService {
                 return AppResponse.bizError("查询失败");
             }
         }
-        //店长权限
+        //店长权限，查看门店下订单
         else {
             //获取当前登陆人Id
             String currentUserId = SecurityUtils.getCurrentUserId();
             //获取当前登陆人的门店Id
             Map<String, String> storeId = orderDao.findUserId(currentUserId);
             //设置登录店长的订单
-            orderDTO.setStoreId(storeId.get(storeId));
+            orderDTO.setStoreId(storeId.get("storeId"));
             PageHelper.startPage(orderDTO.getPageNum(),orderDTO.getPageSize());
             //查找当前登陆店长的订单
             List<OrderVo> orderDov = orderDao.listOrder(orderDTO);
@@ -64,14 +65,14 @@ public class OrderService {
     }
 
     /**
-     *删除订单
+     *修改订单状态
      * @param orderId
      * @param sign
      * @return
      */
-    public AppResponse updateOrder(String orderId,String sign){
+    public AppResponse updateOrder(String orderId,Integer sign){
         List<String> orderIdList = Arrays.asList(orderId.split(","));
-        int count = orderDao.updateOrder(orderIdList, Integer.valueOf(sign));
+        int count = orderDao.updateOrder(orderIdList,sign);
         if (count != 0){
             return AppResponse.success("订单修改成功");
         }else {
@@ -80,7 +81,7 @@ public class OrderService {
     }
 
     /**
-     * 查看订单详情
+     * 查看订单详情，返回订单下的商品详情
      * @param orderId
      * @return
      */

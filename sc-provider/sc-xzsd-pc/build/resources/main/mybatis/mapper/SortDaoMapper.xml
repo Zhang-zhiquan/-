@@ -102,4 +102,5 @@
         sortId = #{sortId}
         and isDetele = 1
     </select>
+
 </mapper>

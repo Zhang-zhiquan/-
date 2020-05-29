@@ -32,6 +32,8 @@ public class DriverVo {
      */
     private int version;
 
+    private String userId;
+
     public String getDriverId() {
         return driverId;
     }
@@ -78,5 +80,13 @@ public class DriverVo {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

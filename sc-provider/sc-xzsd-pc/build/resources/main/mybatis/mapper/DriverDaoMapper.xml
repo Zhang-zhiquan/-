@@ -97,10 +97,11 @@
 
     <!--查询司机列表，管理员权限-->
     <select id="listDriverForManagement" parameterType="com.xzsd.pc.driverManagement.entity.DriverDo" resultType="com.xzsd.pc.driverManagement.entity.DriverVo">
-        select td.driverId,td.driverName,tu.phone as driverPhone,tu.idCard as driverIDCard,tu.userAccount as driverAccounte,td.version
+        select td.driverId,td.driverName,tu.phone as driverPhone,tu.idCard as driverIDCard,
+        tu.userAccount as driverAccounte,td.version,tu.userId
         from t_driver td
         left join t_user tu
-        on td.userId=tu.userId and td.isdetele = 1
+        on td.userId=tu.userId
         where
         <if test="driverId != null and driverId != ''">
             driverId = #{driverId} and
@@ -117,7 +118,7 @@
         <if test="location != null and location != ''">
             location = #{location} and
         </if>
-        tu.isdetele = 1
+        tu.isdetele = 1 and td.isdetele = 1
         order by td.driverId desc
     </select>
 
@@ -126,10 +127,13 @@
         select td.driverId,td.driverName,tu.phone as driverPhone,tu.idCard as driverIDCard,tu.userAccount as driverAccounte,td.version
         from t_driver td
         left join t_user tu
-        on td.userId=tu.userId and td.isdetele = 1 and tu.isdetele = 1
+        on td.userId=tu.userId
         where
-        driverId = #{driverId}
+        td.location = #{location}
+        and td.isdetele = 1 and tu.isdetele = 1
     </select>
+
+
 
     <!--查看司机详情-->
     <select id="findDriver" resultType="com.xzsd.pc.driverManagement.entity.DriverVo">
@@ -211,4 +215,20 @@
             #{item}
         </foreach>
     </update>
+
+    <!--查询当前登录人角色-->
+    <resultMap id="findRole" type="java.util.Map">
+        <result column="role" property="role" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="findCurrentRole" resultMap="findRole">
+        select role from t_user where userId = #{userId} and isdetele = 1
+    </select>
+
+    <!--获取门店地区-->
+    <resultMap id="localtion" type="java.util.Map">
+        <result column="location" property="location" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="findLocaltion" resultMap="localtion">
+        select location from t_store where shopownerId = #{currentUserId} and isdetele = 1
+    </select>
 </mapper>

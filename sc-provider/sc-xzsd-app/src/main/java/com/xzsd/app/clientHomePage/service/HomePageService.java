@@ -1,5 +1,6 @@
 package com.xzsd.app.clientHomePage.service;
 
+import com.neusoft.security.client.utils.SecurityUtils;
 import com.xzsd.app.clientHomePage.dao.HomePageDao;
 import com.xzsd.app.clientHomePage.entity.HotGoodsVo;
 import com.xzsd.app.clientHomePage.entity.RegisterDo;
@@ -78,6 +79,10 @@ public class HomePageService {
         }
     }
 
+    /**
+     * 展示热门商品
+     * @return
+     */
     public AppResponse showHotGoods(){
         //获取热门商品展示数量
         Map<String, Integer> hotGoods = homePageDao.findHotGoodsNum();
@@ -95,7 +100,13 @@ public class HomePageService {
      * @param invitationCode
      * @return
      */
-    public AppResponse showGoods(String goodsId,String invitationCode){
+    public AppResponse showGoods(String goodsId){
+        //判断客户是否绑定了邀请码
+        Map<String, Object> roleInvitationCode = homePageDao.getRoleInvitationCode(SecurityUtils.getCurrentUserId());
+        String invitationCode = (String) roleInvitationCode.get("invitationCode");
+        if (invitationCode ==null || "".equals(invitationCode)){
+            return AppResponse.success("该用户未绑定邀请码","1");
+        }
         //通过邀请码获取门店信息
         Map<String, String> store = homePageDao.findStore(invitationCode);
         Map<String, Object> goods = homePageDao.findGoods(goodsId);

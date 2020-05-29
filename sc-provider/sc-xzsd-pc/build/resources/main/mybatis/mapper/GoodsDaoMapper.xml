@@ -81,7 +81,7 @@
         #{secondClass},
         #{goodsAdvertising},
         #{goodsIntroduce},
-        2,
+        #{goodsStatus},
         0,
         0,
         now(),
@@ -126,72 +126,6 @@
             goodsId = #{goodsId}
         </if>
     </select>
-
-    <!--实现有问题未解决-->
-<!--    <update id="updateGoods">-->
-<!--        update t_goods-->
-<!--        set-->
-<!--        <if test="goodsName != null and goodsName != ''">-->
-<!--        goodsName = #{goodsName},-->
-<!--        </if>-->
-<!--        <if test="goodsCostprice != null and goodsCostprice != ''">-->
-<!--            goodsCostprice = #{goodsCostprice},-->
-<!--        </if>-->
-<!--        <if test="goodsSale != null and goodsSale != ''">-->
-<!--            goodsSale = #{goodsSale},-->
-<!--        </if>-->
-<!--        <if test="firstClass != null and firstClass != ''">-->
-<!--            firstClass = #{firstClass},-->
-<!--        </if>-->
-<!--        <if test="secondClass != null and secondClass != ''">-->
-<!--            secondClass = #{secondClass},-->
-<!--        </if>-->
-<!--        <if test="goodsAdvertising != null and goodsAdvertising != ''">-->
-<!--            goodsAdvertising = #{goodsAdvertising},-->
-<!--        </if>-->
-<!--        <if test="goodsIntroduce != null and goodsIntroduce != ''">-->
-<!--            goodsIntroduce = #{goodsIntroduce},-->
-<!--        </if>-->
-<!--        <if test="goodsStatus != null and goodsStatus != ''">-->
-<!--            goodsStatus = #{goodsStatus},-->
-<!--        </if>-->
-<!--        <if test="goodsSalesVolume != null and goodsSalesVolume != ''">-->
-<!--            goodsSalesVolume = #{goodsSalesVolume},-->
-<!--        </if>-->
-<!--        <if test="goodsBrowse != null and goodsBrowse != ''">-->
-<!--            goodsBrowse = #{goodsBrowse},-->
-<!--        </if>-->
-<!--        <if test="shopCode != null and shopCode != ''">-->
-<!--            shopCode = #{shopCode},-->
-<!--        </if>-->
-<!--        <if test="shopName != null and shopName != ''">-->
-<!--            shopName = #{shopName},-->
-<!--        </if>-->
-<!--        <if test="goodsStock != null and goodsStock != ''">-->
-<!--            goodsStock = #{goodsStock},-->
-<!--        </if>-->
-<!--        <if test="bookNumber != null and bookNumber != ''">-->
-<!--            bookNumber = #{bookNumber},-->
-<!--        </if>-->
-<!--        <if test="goodsPicture != null and goodsPicture != ''">-->
-<!--            goodsPicture = #{goodsPicture},-->
-<!--        </if>-->
-<!--        <if test="goodsPicture != null and goodsPicture != ''">-->
-<!--            goodsPicture = #{goodsPicture},-->
-<!--        </if>-->
-<!--        <if test="publisher != null and publisher != ''">-->
-<!--            publisher = #{publisher},-->
-<!--        </if>-->
-<!--        <if test="author != null and author != ''">-->
-<!--            author = #{author},-->
-<!--        </if>-->
-<!--        modifiyTime = now(),-->
-<!--        lastModifiyBy = #{currentUserId},-->
-<!--        version = version + 1-->
-<!--        where-->
-<!--        goodsId = #{goodsId}-->
-<!--        and isDetele = 1-->
-<!--    </update>-->
 
     <!--修改商品信息-->
     <update id="updateGoods" parameterType="com.xzsd.pc.goodsManagement.entity.GoodsDo">
@@ -268,5 +202,23 @@
         <foreach collection="goodsId" index="index" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
+    </update>
+
+    <!--商品上架下架-->
+    <update id="updateGoodsState">
+        update t_goods
+        set
+        <if test="sign == 1">
+            goodsStatus = 2
+        </if>
+        <if test="sign == 2">
+            goodsStatus = 1
+        </if>
+        where
+        goodsId in
+        <foreach collection="goodsId" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and isdetele = 1
     </update>
 </mapper>

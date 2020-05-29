@@ -30,7 +30,7 @@ public class GoodsEvaluateDo {
     /**
      * 图片路径
      */
-    private String imagesUrl;
+    private String orderId;
     /**
      * 创建时间
      */
@@ -76,19 +76,19 @@ public class GoodsEvaluateDo {
         this.appraiseInfo = appraiseInfo;
     }
 
-    public String getImagesUrl() {
-        return imagesUrl;
-    }
-
-    public void setImagesUrl(String imagesUrl) {
-        this.imagesUrl = imagesUrl;
-    }
-
     public String getBuildTime() {
         return buildTime;
     }
 
     public void setBuildTime(String buildTime) {
         this.buildTime = buildTime;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

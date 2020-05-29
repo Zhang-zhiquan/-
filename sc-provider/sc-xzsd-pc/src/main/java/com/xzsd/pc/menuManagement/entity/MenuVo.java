@@ -15,6 +15,10 @@ public class MenuVo {
      * 菜单名称
      */
     private String menuName;
+    /**
+     * 菜单路径
+     */
+    private String menuRoute;
 
     public String getMenuId() {
         return menuId;
@@ -30,5 +34,13 @@ public class MenuVo {
 
     public void setMenuName(String menuName) {
         this.menuName = menuName;
+    }
+
+    public String getMenuRoute() {
+        return menuRoute;
+    }
+
+    public void setMenuRoute(String menuRoute) {
+        this.menuRoute = menuRoute;
     }
 }

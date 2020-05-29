@@ -2,6 +2,7 @@ package com.xzsd.pc.storeManagement.controller;
 
 import com.xzsd.pc.rotationPictureManagement.controller.PictureController;
 import com.xzsd.pc.rotationPictureManagement.service.PictureService;
+import com.xzsd.pc.storeManagement.entity.ShopnerDTO;
 import com.xzsd.pc.storeManagement.entity.StoreDTO;
 import com.xzsd.pc.storeManagement.entity.StoreDo;
 import com.xzsd.pc.storeManagement.service.StoreService;
@@ -128,12 +129,28 @@ public class StoreController {
         }
     }
 
+    /**
+     * 删除门店
+     * @param storeId
+     * @return
+     */
     @RequestMapping(value = "deleteStore")
     public AppResponse deteleStore(String storeId){
         try{
             return storeService.deleteStore(storeId);
         }catch (Exception e){
             logger.error("删除门店失败",e);
+            System.out.println(e.toString());
+            throw  e;
+        }
+    }
+
+    @RequestMapping(value = "findShopwner")
+    public AppResponse findShopwner(ShopnerDTO shopnerDTO){
+        try{
+            return storeService.findShopwner(shopnerDTO);
+        }catch (Exception e){
+            logger.error("查询店长失败",e);
             System.out.println(e.toString());
             throw  e;
         }

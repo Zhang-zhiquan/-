@@ -33,8 +33,6 @@ public class MenuController {
      */
     @PostMapping("addMenu")
     public AppResponse addMenu(MenuDo menuDo){
-        menuDo.setMenuId(UUIDUtils.getUUID());
-        menuDo.setCreateBy(SecurityUtils.getCurrentUserId());
         try{
             return menuService.addMenu(menuDo);
         }catch (Exception e){

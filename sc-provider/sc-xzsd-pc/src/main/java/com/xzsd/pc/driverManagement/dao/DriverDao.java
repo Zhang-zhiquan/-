@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -69,7 +70,7 @@ public interface DriverDao {
      * @param driverDo
      * @return
      */
-    public DriverVo listDriverForSelf(DriverDo driverDo);
+    public List<DriverVo> listDriverForSelf(DriverDo driverDo);
 
     /**
      * 查看司机详情
@@ -95,4 +96,13 @@ public interface DriverDao {
     public int deleteDriverUser(@Param("userId") List<String> userId,@Param("currentUserId") String currentUserId);
 
     public int deleteDriver(@Param("driverId") List<String> driverId,@Param("currentUserId") String currentUserId);
+
+    Map<String,Integer> findCurrentRole(String currentUserId);
+
+    /**
+     * 获取门店地区
+     * @param currentUserId
+     * @return
+     */
+    Map<String,String> findLocaltion(String currentUserId);
 }

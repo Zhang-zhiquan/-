@@ -52,22 +52,18 @@
 
     <!--查询热门商品列表-->
     <select id="listHotGoods" parameterType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDTO" resultType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsVo">
-        select th.goodsSort,th.goodsId,th.hotGoodsId,tg.goodsName,tg.goodsPrice,tg.goodsIntroduce
+        select th.goodsSort,th.goodsId,th.hotGoodsId,tg.goodsName,tg.goodsSale,tg.goodsIntroduce
         FROM t_hot_goods th
         LEFT JOIN t_goods tg
         ON th.goodsId = tg.goodsId AND tg.isDetele = 1 AND th.isdetele = 1
-        <if test="(goodsName != null and goodsName != '') or (goodsId != null and goodsId != '')">
-            where
-        </if>
+        where
         <if test="goodsName != null and goodsName != ''">
-            tg.goodsName LIKE CONCAT('%',#{goodsName},'%')
-        </if>
-        <if test="goodsName != null and goodsName != '' and goodsId != null and goodsId != ''">
-            or
+            tg.goodsName LIKE CONCAT('%',#{goodsName},'%') and
         </if>
         <if test="goodsId != null and goodsId != ''">
-            th.goodsId = #{goodsId}
+            th.goodsId = #{goodsId} and
         </if>
+        th.isdetele = 1 and tg.isdetele = 1 order by th.goodsSort asc
     </select>
 
     <!--删除热门商品-->
@@ -102,6 +98,7 @@
         version = version + 1
     </update>
 
+    <!--修改热门商品-->
     <update id="updateHotGoods" parameterType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDo">
         update t_hot_goods
         set
@@ -117,4 +114,11 @@
         where
         hotGoodsId = #{hotGoodsId} and isdetele = 1
     </update>
+
+    <select id="findGoods" resultType="com.xzsd.pc.hotGoodsManagement.entity.HotGoodsDetail">
+        select goodsId,goodsSort
+        from t_hot_goods
+        where
+        hotGoodsId = #{hotGoodsId} and isdetele = 1
+    </select>
 </mapper>

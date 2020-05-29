@@ -114,4 +114,15 @@ public class HotGoodsController {
         }
     }
 
+    @RequestMapping(value = "findGoods")
+    public AppResponse findGoods(String hotGoodsId){
+        try{
+            return hotGoodsService.findGoods(hotGoodsId);
+        }catch (Exception e){
+            logger.error("查询商品失败",e);
+            System.out.println(e.toString());
+            throw e;
+        }
+    }
+
 }

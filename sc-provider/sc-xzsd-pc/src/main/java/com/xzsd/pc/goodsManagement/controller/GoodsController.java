@@ -4,6 +4,7 @@ import com.neusoft.security.client.utils.SecurityUtils;
 import com.xzsd.pc.goodsManagement.entity.GoodsDo;
 import com.xzsd.pc.goodsManagement.service.GoodsService;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
 import com.xzsd.pc.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class GoodsController {
     public AppResponse addGoods(GoodsDo goodsDo){
         try{
             goodsDo.setCreateBy(SecurityUtils.getCurrentUserId());
-            goodsDo.setGoodsId(UUIDUtils.getUUID());
+            goodsDo.setGoodsId(StringUtil.getCommonCode(2));
             return goodsService.addList(goodsDo);
         }catch (Exception e){
             logger.error("商品添加失败",e);
@@ -78,24 +79,6 @@ public class GoodsController {
             throw e;
         }
     }
-
-//    /**
-//     *修改商品信息
-//     * @param goodsDo
-//     * @return
-//     */
-//    @PostMapping("updategoods")
-//    public AppResponse updateGoods(GoodsDo goodsDo){
-//        try {
-//            String currentUserId = AuthUtils.getCurrentUserId();
-//            AppResponse appResponse = goodsService.updateGoods(goodsDo, currentUserId);
-//            return appResponse;
-//        }catch (Exception e){
-//            logger.error("商品修改失败",e);
-//            System.out.println(e.toString());
-//            throw e;
-//        }
-//    }
 
     /**
      * 修改商品信息
@@ -126,6 +109,23 @@ public class GoodsController {
         String currentUserId = SecurityUtils.getCurrentUserId();
         AppResponse appResponse = goodsService.deteleGoods(goodsid, currentUserId);
         return appResponse;
+    }
+
+    /**
+     * 商品上架下架
+     * @param goodsId
+     * @param sign
+     * @return
+     */
+    @PostMapping("updateGoodsState")
+    public AppResponse updateGoodsState(String goodsId,String sign){
+        try {
+            return goodsService.updateGoodsState(goodsId,sign);
+        }catch (Exception e){
+            logger.error("商品上下架失败",e);
+            System.out.println(e.toString());
+            throw e;
+        }
     }
 
 }

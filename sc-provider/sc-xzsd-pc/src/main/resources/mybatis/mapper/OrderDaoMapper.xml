@@ -16,7 +16,7 @@
         from t_order
         where
         <if test="shopingName != null and shopingName != ''">
-            shopingName = #{shopingName} and
+            shopingName like concat('%',#{shopingName},'%') and
         </if>
         <if test="orderId != null and orderId != ''">
             orderId = #{orderId} and
@@ -53,19 +53,19 @@
         update t_order
         set
         <if test="sign == 1">
-            orderState = 1,
+            orderState = 4,
         </if>
         <if test="sign == 2">
-            orderState = 2,
+            orderState = 1,
         </if>
         <if test="sign == 3">
             orderState = 0,
         </if>
         <if test="sign == 4">
-            orderState = 3,
+            orderState = 2,
         </if>
         <if test="sign == 5">
-            orderState = 2,
+            orderState = 1,
         </if>
         version = version + 1
         where
@@ -91,5 +91,13 @@
         from t_order_details
         where
         orderId = #{orderId} and isdetele = 1
+    </select>
+
+    <!--查询当前登录人角色-->
+    <resultMap id="findRole" type="java.util.Map">
+        <result column="role" property="role" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="findCurrentRole" resultMap="findRole">
+        select role from t_user where userId = #{userId} and isdetele = 1
     </select>
 </mapper>

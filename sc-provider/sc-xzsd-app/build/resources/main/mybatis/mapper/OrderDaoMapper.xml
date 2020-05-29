@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xzsd.app.clientOrder.dao.OrderDao">
-    <!--展示订单详情-->
-    <resultMap id="order" type="com.xzsd.app.clientOrder.entity.OrderVo">
+    <!--获取登录用户邀请码-->
+    <resultMap id="roleIn" type="java.util.Map">
+        <result column="invitationCode" property="invitationCode" javaType="String" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getRoleInvitationCode" resultMap="roleIn">
+        select invitationCode
+        from t_customer
+        where
+        userId = #{userId} and isdetele = 1
+    </select>
+
+    <!--获取登录店长邀请码-->
+    <resultMap id="roleFor" type="java.util.Map">
+        <result column="invitationCode" property="invitationCode" javaType="String" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getInvitationCodeForShopowner" resultMap="roleFor">
+        select invitationCode
+        from t_store
+        where
+        shopownerId = #{userId} and isdetele = 1
+    </select>
+
+    <!--展示订单列表-->
+    <resultMap id="forOrderList" type="com.xzsd.app.clientOrder.entity.OrderListVo">
         <id column="orderId" property="orderId" jdbcType="VARCHAR"></id>
         <result column="orderState" property="orderState" jdbcType="INTEGER"></result>
-        <result column="buildTime" property="buildTime" jdbcType="DATE"></result>
         <result column="orderTotalPrice" property="orderTotalPrice" jdbcType="DOUBLE"></result>
         <collection property="orderList" ofType="com.xzsd.app.clientOrder.entity.OrderMess">
             <result column="goodsPicture" property="goodsPicture" jdbcType="VARCHAR"></result>
@@ -17,8 +38,8 @@
             <result column="isEvaluate" property="isEvaluate" jdbcType="INTEGER"></result>
         </collection>
     </resultMap>
-    <select id="showOrder" resultMap="order">
-        SELECT td.orderId,td.orderState,td.buildTime,td.orderTotalPrice,
+    <select id="orderList" resultMap="forOrderList">
+        SELECT td.orderId,td.orderState,td.orderTotalPrice,
         (SELECT goodsPicture FROM t_goods WHERE goodsId = tod.goodsId) AS goodsPicture,
         (SELECT goodsAdvertising FROM t_goods WHERE goodsId = tod.goodsId) AS goodsAdvertising,
         tod.goodsName,tod.goodsId,tod.sale,tod.purchaseNum,tod.isEvaluate
@@ -33,6 +54,34 @@
             td.orderState in (2,3) and
         </if>
         customerId = #{currentUserId} AND tod.isdetele = 1 AND td.isdetele = 1
+        order by td.buildTime desc
+    </select>
+
+    <!--展示订单详情-->
+    <resultMap id="orderDetails" type="com.xzsd.app.clientOrder.entity.OrderVo">
+        <id column="orderId" property="orderId" jdbcType="VARCHAR"></id>
+        <result column="orderState" property="orderState" jdbcType="INTEGER"></result>
+        <result column="buildTime" property="buildTime" jdbcType="DATE"></result>
+        <result column="orderTotalPrice" property="orderTotalPrice" jdbcType="DOUBLE"></result>
+        <collection property="orderList" ofType="com.xzsd.app.clientOrder.entity.OrderMess">
+            <result column="goodsPicture" property="goodsPicture" jdbcType="VARCHAR"></result>
+            <result column="goodsAdvertising" property="goodsAdvertising" jdbcType="VARCHAR"></result>
+            <result column="goodsName" property="goodsName" jdbcType="VARCHAR"></result>
+            <result column="goodsId" property="goodsId" jdbcType="VARCHAR"></result>
+            <result column="sale" property="sale" jdbcType="DOUBLE"></result>
+            <result column="purchaseNum" property="purchaseNum" jdbcType="INTEGER"></result>
+        </collection>
+    </resultMap>
+    <select id="showOrderDetails" resultMap="orderDetails">
+        SELECT td.orderId,td.orderState,td.orderTotalPrice,td.buildTime,
+        tod.goodsName,tod.purchaseNum,tod.sale,tod.goodsId,
+        (SELECT goodsAdvertising FROM t_goods WHERE goodsId = tod.goodsId) AS goodsAdvertising,
+        (SELECT goodsPicture FROM t_goods WHERE goodsId = tod.goodsId) AS goodsPicture
+        FROM t_order td
+        LEFT JOIN t_order_details tod
+        ON td.orderId = tod.orderId
+        WHERE
+        td.orderId = #{orderId} AND td.isdetele = 1 AND tod.isdetele = 1
     </select>
 
     <!--获取门店地址-->
@@ -62,7 +111,6 @@
         goodsId,
         starLevel,
         appraiseInfo,
-        imagesUrl,
         isdetele,
         buildTime,
         modifiyTime,
@@ -76,7 +124,6 @@
         #{goodsId},
         #{starLevel},
         #{appraiseInfo},
-        #{imagesUrl},
         1,
         now(),
         now(),
@@ -91,8 +138,12 @@
         update t_order_details
         set
         isEvaluate = 1
-        where
-        goodsId = #{goodsId} and userId = #{currentUserId} and isdetele = 1
+        where goodsId = #{goodsId}  and orderId = #{orderId}  and isdetele = 1
+    </update>
+
+    <!--修改订单状态为已完成已评价-->
+    <update id="updateGoodsOrderState">
+        UPDATE t_order SET orderState = 3 WHERE orderId = #{orderId} AND isdetele = 1
     </update>
 
     <!--展示商品评价-->
@@ -112,6 +163,11 @@
             starLevel between 0 and 2 and
         </if>
         goodsId = #{goodsId} AND isdetele = 1
+    </select>
+
+    <!--统计订单下的商品是否评价完-->
+    <select id="accoutGoodsEvaluate" resultType="int">
+        SELECT COUNT(ordersId) FROM t_order_details WHERE orderId = #{orderId} AND isEvaluate = 0 AND isdetele = 1
     </select>
 
     <!--查看邀请码是否存在-->
@@ -151,4 +207,20 @@
     <select id="customerDetails" resultMap="userDetails">
         select userName,imagesUrl from t_user where userId = #{customerId} and isdetele = 1
     </select>
+
+    <!--查询当前登录人角色-->
+    <resultMap id="findRole" type="java.util.Map">
+        <result column="role" property="role" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="findCurrentRole" resultMap="findRole">
+        select role from t_user where userId = #{userId} and isdetele = 1
+    </select>
+
+    <!--修改订单状态为已取消-->
+    <update id="updateOrderState">
+        update t_order
+        set
+        orderState = 4
+        where orderId = #{orderId} and isdetele = 1
+    </update>
 </mapper>

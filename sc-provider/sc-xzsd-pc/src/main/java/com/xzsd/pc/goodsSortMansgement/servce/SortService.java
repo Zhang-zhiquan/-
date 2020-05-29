@@ -5,6 +5,8 @@ import com.xzsd.pc.goodsSortMansgement.dao.SortDao;
 import com.xzsd.pc.goodsSortMansgement.entity.SortDo;
 import com.xzsd.pc.goodsSortMansgement.entity.SortVo;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
+import com.xzsd.pc.util.UUIDUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
@@ -27,6 +29,9 @@ public class SortService {
      * @return
      */
     public AppResponse addSort(SortDo sortDo){
+        sortDo.setParentId(sortDo.getSortId());
+        sortDo.setSortId(StringUtil.getCommonCode(2));
+        sortDo.setCreateBy(SecurityUtils.getCurrentUserId());
         int count = 0;
         //判断商品分类是否存在
         if (sortDao.countNum(sortDo.getSortName()) > 0){

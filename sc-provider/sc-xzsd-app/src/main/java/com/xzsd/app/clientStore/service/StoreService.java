@@ -2,8 +2,11 @@ package com.xzsd.app.clientStore.service;
 
 import com.neusoft.security.client.utils.SecurityUtils;
 import com.xzsd.app.clientOrder.entity.OrderMess;
+import com.xzsd.app.clientOrder.entity.OrderVo;
 import com.xzsd.app.clientStore.dao.StoreDao;
 import com.xzsd.app.clientStore.entity.OrderDetails;
+import com.xzsd.app.clientStore.entity.OrderInfo;
+import com.xzsd.app.clientStore.entity.OrderMessDetail;
 import com.xzsd.app.clientStore.entity.OrderMessVo;
 import com.xzsd.app.util.AppResponse;
 import org.springframework.stereotype.Service;
@@ -64,12 +67,22 @@ public class StoreService {
      * 店长查看订单列表
      * @return
      */
-    public AppResponse showOrder(){
+    public AppResponse showOrder(int sign){
         Map<String, String> storeId = storeDao.getStoreId(SecurityUtils.getCurrentUserId());
         if (storeId.get("storeId").equals("")){
             return AppResponse.bizError("未查询到订单");
         }
-        List<OrderMessVo> orderlists = storeDao.showOrder(storeId.get("storeId"));
+        List<OrderMessVo> orderlists = storeDao.showOrder(storeId.get("storeId"),sign);
+        //计算订单下的商品总数量
+        for (OrderMessVo order : orderlists){
+            int totall = 0;
+            List<OrderMessDetail> orderList = order.getOrderList();
+            for (OrderMessDetail orderMess : orderList){
+                totall += orderMess.getPurchaseNum();
+            }
+            order.setTotall(totall);
+        }
+
         if (orderlists != null){
             return AppResponse.success("订单查询成功",orderlists);
         }else {
@@ -84,6 +97,16 @@ public class StoreService {
      */
     public AppResponse showOrderDetails(String orderId){
         List<OrderDetails> orderDetails = storeDao.showOrderDetails(orderId);
+        //计算订单下的商品总数量
+        for (OrderDetails order : orderDetails){
+            int totall = 0;
+            List<OrderInfo> orderList = order.getOrderList();
+            for (OrderInfo orderMess : orderList){
+                totall += orderMess.getPurchaseNum();
+            }
+            order.setTotall(totall);
+        }
+
         return AppResponse.success("查看订单详情成功",orderDetails);
     }
 
@@ -93,8 +116,8 @@ public class StoreService {
      * @param sign
      * @return
      */
-    public AppResponse alterOrderState(String orderId,String sign){
-        int i = storeDao.alterOrderState(orderId, Integer.parseInt(sign));
+    public AppResponse alterOrderState(String orderId,int sign){
+        int i = storeDao.alterOrderState(orderId,sign);
         if (i == 0){
             return AppResponse.bizError("订单状态未修改");
         }

@@ -134,7 +134,7 @@
             <if test="goodsName != null and goodsName != ''">
                 goodsName like concat('%',#{goodsName},'%') and
             </if>
-            goodsStatus = 1 and isdetele = 1
+            goodsStatus = 2 and isdetele = 1
             order by goodsShelfTime desc
     </select>
 

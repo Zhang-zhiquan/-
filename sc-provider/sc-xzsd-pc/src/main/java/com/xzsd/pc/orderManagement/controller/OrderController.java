@@ -43,13 +43,13 @@ public class OrderController {
     /**
      * 修改订单状态
      * @param orderId
-     * @param sgin
+     * @param sign
      * @return
      */
     @RequestMapping(value = "updateOrder")
-    public AppResponse updateOrder(String orderId,String sgin){
+    public AppResponse updateOrder(String orderId,Integer sign){
         try{
-            return orderService.updateOrder(orderId,sgin);
+            return orderService.updateOrder(orderId,sign);
         }catch (Exception e){
             logger.error("订单修改状态失败",e);
             System.out.println(e.toString());

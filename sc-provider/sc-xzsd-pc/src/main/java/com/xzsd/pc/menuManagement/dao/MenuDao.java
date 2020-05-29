@@ -16,6 +16,12 @@ import java.util.List;
 @Mapper
 public interface MenuDao {
     /**
+     * 查看是否有相同的菜单名
+     * @param menuName
+     * @return
+     */
+    public int accoutMenu(String menuName);
+    /**
      * 新增菜单
      * @param menudo
      * @return

@@ -35,8 +35,6 @@ public class SortController {
     @RequestMapping(value = "addGoodsSort")
     public AppResponse addSort(SortDo sortDo){
         try{
-            sortDo.setSortId(UUIDUtils.getUUID());
-            sortDo.setCreateBy(SecurityUtils.getCurrentUserId());
             return sortService.addSort(sortDo);
         }catch (Exception e){
             logger.error("新增商品分类失败",e);

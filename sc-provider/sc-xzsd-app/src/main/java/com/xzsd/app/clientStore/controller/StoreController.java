@@ -62,9 +62,9 @@ public class StoreController {
      * @return
      */
     @RequestMapping(value = "showOrder")
-    public AppResponse showOrder(){
+    public AppResponse showOrder(int sign){
         try{
-            return storeService.showOrder();
+            return storeService.showOrder(sign);
         }catch (Exception e){
             logger.error("店长查看订单列表异常",e);
             System.out.println(e.toString());
@@ -112,7 +112,7 @@ public class StoreController {
      * @return
      */
     @RequestMapping(value = "alterOrderState")
-    public AppResponse alterOrderState(String orderId,String sign){
+    public AppResponse alterOrderState(String orderId,int sign){
         try{
             return storeService.alterOrderState(orderId,sign);
         }catch (Exception e){

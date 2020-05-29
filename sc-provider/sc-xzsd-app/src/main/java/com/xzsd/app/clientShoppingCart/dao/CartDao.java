@@ -16,6 +16,12 @@ import java.util.Map;
 @Mapper
 public interface CartDao {
     /**
+     * 获取邀请码
+     * @param userId
+     * @return
+     */
+    public Map<String,String> getRoleInvitationCode(String userId);
+    /**
      *添加购物车
      * @param cartDo
      * @return
@@ -79,4 +85,20 @@ public interface CartDao {
      * @return
      */
     public int addOrderDetails(OrderDTO orderDTO);
+
+    /**
+     * 通过客户Id获取门店Id
+     * @param currentUserId
+     * @return
+     */
+    public Map<String,String> getStoreIdOfUserId(String currentUserId);
+
+    /**
+     * 通过商品Id获取商品信息
+     * @param goodsId
+     * @return
+     */
+    public GoodsDetailDTO getGoodsOfId(String goodsId);
+
+    public Map<String,Integer> findGoodsStock(String goodsId);
 }

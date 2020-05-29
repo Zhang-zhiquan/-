@@ -22,6 +22,35 @@
         <if test="customerAccount != null and customerAccount != ''">
             us.userAccount like concat('%',#{customerAccount},'%') and
         </if>
+        <if test="invitationCode != null and invitationCode != ''">
+            cus.invitationCode = #{invitationCode} and
+        </if>
+        us.isdetele = 1
+        order by cus.buildTime desc
+    </select>
+
+    <!--店长查询其下客户-->
+    <select id="listCustomerForShopowner" parameterType="com.xzsd.pc.customerManagement.entity.CustomerDTO"
+     resultType="com.xzsd.pc.customerManagement.entity.CustomerDo">
+        select cus.customerId,
+        us.userId,
+        us.userAccount as customerAccount,
+        us.userName as customerName,
+        us.email,
+        us.sex,
+        us.phone,
+        us.idCard
+        from t_customer cus
+        left join t_user us
+        ON cus.userId = us.userId
+        where
+        <if test="customerName != null and customerName != ''">
+            us.userName like concat('%',#{customerName},'%') and
+        </if>
+        <if test="customerAccount != null and customerAccount != ''">
+            us.userAccount like concat('%',#{customerAccount},'%') and
+        </if>
+        cus.invitationCode = #{invitationCode} and
         us.isdetele = 1
         order by cus.buildTime desc
     </select>
@@ -40,4 +69,19 @@
         userId = #{userId} and isDetele = 1
     </select>
 
+    <!--查询当前登录人角色-->
+    <resultMap id="findRole" type="java.util.Map">
+        <result column="role" property="role" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="fingCurrentRole" resultMap="findRole">
+        select role from t_user where userId = #{userId} and isdetele = 1
+    </select>
+
+    <!--获取邀请码-->
+    <resultMap id="invitationCode" type="java.util.Map">
+        <result column="invitationCode" property="invitationCode" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="findInvitationCode" resultMap="invitationCode">
+        select invitationCode from t_store where shopownerId = #{currentUserId} and isdetele = 1
+    </select>
 </mapper>

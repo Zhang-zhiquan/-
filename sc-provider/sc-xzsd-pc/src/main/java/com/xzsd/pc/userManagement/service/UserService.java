@@ -45,7 +45,6 @@ public class UserService {
         if (0 != countUserAcct){
             return AppResponse.bizError("用户账号已存在，请重新输入账号");
         }
-
         userDTO.setUserId(StringUtil.getCommonCode(2));
         userDTO.setPassword(PasswordUtils.generatePassword(userDTO.getPassword()));
         //新增用户
@@ -99,7 +98,7 @@ public class UserService {
         if (0 != countUserAcct){
             return AppResponse.bizError("用户账号已存在。请重新输入");
         }
-
+        //修改密码
         if (userInfo.getPassword() != null && !"".equals(userInfo.getPassword())){
             userInfo.setPassword(PasswordUtils.generatePassword(userInfo.getPassword()));
         }

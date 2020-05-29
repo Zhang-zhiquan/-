@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -26,10 +27,23 @@ public class DriverService {
      */
     public AppResponse showStore(){
         List<StoreVo> storeVos = driverDao.showStore(SecurityUtils.getCurrentUserId());
-        if (storeVos != null){
-            return AppResponse.success("门店信息查询成功",storeVos);
+        if (storeVos.size() == 0){
+            return AppResponse.bizError("该地区没有要负责的门店");
         }else {
-            return AppResponse.bizError("门店信息查询失败");
+            return AppResponse.success("门店信息查询成功",storeVos);
+        }
+    }
+
+    /**
+     * 查询司机信息
+     * @return
+     */
+    public AppResponse showDriver(){
+        Map<String, String> driverMess = driverDao.showDriver(SecurityUtils.getCurrentUserId());
+        if (driverMess != null){
+            return AppResponse.success("查询司机信息查询成功",driverMess);
+        }else {
+            return AppResponse.bizError("查询司机信息查询失败");
         }
     }
 }

@@ -1,8 +1,6 @@
 package com.xzsd.app.clientDriver.controller;
 
 import com.xzsd.app.clientDriver.service.DriverService;
-import com.xzsd.app.clientHomePage.controller.HomePageController;
-import com.xzsd.app.clientHomePage.service.HomePageService;
 import com.xzsd.app.util.AppResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +32,21 @@ public class DriverController {
             return driverService.showStore();
         }catch (Exception e){
             logger.error("展示司机负责的门店信息异常",e);
+            System.out.println(e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * 查询司机信息
+     * @return
+     */
+    @RequestMapping(value = "showDriver")
+    public AppResponse showDriver(){
+        try{
+            return driverService.showDriver();
+        }catch (Exception e){
+            logger.error("查询司机信息异常",e);
             System.out.println(e.toString());
             throw e;
         }

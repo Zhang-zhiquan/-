@@ -15,4 +15,18 @@
         td.userId = #{currentUserId} AND ts.isdetele = 1 AND td.isdetele = 1
     </select>
 
+    <resultMap id="driver" type="java.util.Map">
+        <result column="driverName" property="driverName" jdbcType="VARCHAR"></result>
+        <result column="driverPhone" property="driverPhone" jdbcType="VARCHAR"></result>
+        <result column="imagesUrl" property="imagesUrl" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="showDriver" resultMap="driver">
+        SELECT driverName,
+        (SELECT phone FROM t_user WHERE userId =td.userId) AS driverPhone,
+        (SELECT imagesUrl FROM t_user WHERE userId =td.userId) AS imagesUrl
+        FROM t_driver td
+        WHERE
+        userId = #{currentUserId} AND isdetele = 1
+    </select>
+
 </mapper>

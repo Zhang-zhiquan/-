@@ -6,6 +6,7 @@ import com.neusoft.security.client.utils.SecurityUtils;
 import com.xzsd.pc.storeManagement.dao.StoreDao;
 import com.xzsd.pc.storeManagement.entity.*;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
 import com.xzsd.pc.util.UUIDUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,15 +86,15 @@ public class StoreService {
         if (storeDao.accoutInStore(storeDo.getShopownerId()) > 0){
             return AppResponse.bizError("该账号已存在店面，请重新输入");
         }
-
-        //设置店长姓名
+        //设置门店名称
         StoreGetName shopownerName = storeDao.storeName(storeDo.getShopownerId());
         storeDo.setShopownerName(shopownerName.getShopownerName());
-        storeDo.setStoreId(UUIDUtils.getUUID());
-        //设置邀请码
+        storeDo.setStoreId(StringUtil.getCommonCode(2));
+        //设置邀请码，六位数字
         storeDo.setInvitationCode(Integer.toString((int)((Math.random()*9+1)*100000)));
         storeDo.setCreateBy(SecurityUtils.getCurrentUserId());
         storeDo.setLastModifiyBy(SecurityUtils.getCurrentUserId());
+        //设置门店账号
         String storeAccountNumber = "XZS" + Integer.toString((int)((Math.random()*9+1)*100000));
         storeDo.setStoreAccountNumber(storeAccountNumber);
         int count = storeDao.addStore(storeDo);
@@ -110,8 +111,9 @@ public class StoreService {
      * @return
      */
     public AppResponse listStore(StoreDTO storeDTO){
-        //管理员权限
-        if (storeDTO.getRole() == 1){
+        int role = storeDao.findCurrentRole(SecurityUtils.getCurrentUserId()).get("role");
+        //管理员权限，查看全部门店
+        if (role == 1){
             PageHelper.startPage(storeDTO.getPageNum(),storeDTO.getPageSize());
             List<StoreVo> storeVos = storeDao.listStore(storeDTO);
             PageInfo<StoreVo> storeVoPageInfo = new PageInfo<>(storeVos);
@@ -121,11 +123,13 @@ public class StoreService {
                 return AppResponse.notFound("未查询到信息");
             }
         }
-        //店长权限
+        //店长权限，查看自己门店
         else {
+            PageHelper.startPage(storeDTO.getPageNum(),storeDTO.getPageSize());
             List<StoreVo> storeVos = storeDao.listStoreForShopowner(SecurityUtils.getCurrentUserId());
+            PageInfo<StoreVo> storeVoPageInfo = new PageInfo<>(storeVos);
             if (storeVos != null){
-                return AppResponse.success("查询成功",storeVos);
+                return AppResponse.success("查询成功",storeVoPageInfo);
             }else {
                 return AppResponse.notFound("未查询到信息");
             }
@@ -153,10 +157,6 @@ public class StoreService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse updateStore(StoreDo storeDo){
-        if (storeDao.accoutVersion(storeDo.getStoreId(),storeDo.getVersion()) <= 0){
-            return AppResponse.bizError("版本已改变，请刷新");
-        }
-
         if (storeDo.getShopownerId() != null && !"".equals(storeDo.getShopownerId())){
             //校验店长账号是否在user表
             if (storeDao.accoutInUser(storeDo.getShopownerId()) <= 0){
@@ -167,7 +167,6 @@ public class StoreService {
                 return AppResponse.bizError("该账号已存在店面，请重新输入");
             }
         }
-
         storeDo.setLastModifiyBy(SecurityUtils.getCurrentUserId());
         //修改店长Id同时修改姓名
         if (storeDo.getShopownerId() != null && !"".equals(storeDo.getShopownerId())){
@@ -175,7 +174,6 @@ public class StoreService {
             storeDo.setShopownerName(shopownerName.getShopownerName());
         }
         int count = storeDao.updateStore(storeDo);
-
         if (count != 0){
             return AppResponse.success("修改成功");
         }else {
@@ -183,6 +181,11 @@ public class StoreService {
         }
     }
 
+    /**
+     * 删除门店
+     * @param storeId
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse deleteStore(String storeId){
         List<String> storeIds = Arrays.asList(storeId.split(","));
@@ -192,6 +195,18 @@ public class StoreService {
         }else {
             return AppResponse.bizError("门店删除未成功");
         }
+    }
+
+    /**
+     * 查询店长
+     * @param shopnerDTO
+     * @return
+     */
+    public AppResponse findShopwner(ShopnerDTO shopnerDTO){
+        PageHelper.startPage(shopnerDTO.getPageNum(),shopnerDTO.getPageSize());
+        List<ShopnerVo> shopwner = storeDao.findShopwner(shopnerDTO);
+        PageInfo<ShopnerVo> shopnerVoPageInfo = new PageInfo<>(shopwner);
+        return AppResponse.success("查询店长成功",shopnerVoPageInfo);
     }
 
 }

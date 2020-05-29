@@ -3,9 +3,7 @@ package com.xzsd.app.clientOrder.service;
 import com.neusoft.security.client.utils.SecurityUtils;
 import com.sun.jersey.core.impl.provider.entity.XMLRootObjectProvider;
 import com.xzsd.app.clientOrder.dao.OrderDao;
-import com.xzsd.app.clientOrder.entity.GoodsEvaluateDo;
-import com.xzsd.app.clientOrder.entity.GoodsEvaluateVo;
-import com.xzsd.app.clientOrder.entity.OrderVo;
+import com.xzsd.app.clientOrder.entity.*;
 import com.xzsd.app.util.AppResponse;
 import com.xzsd.app.util.PasswordUtils;
 import com.xzsd.app.util.StringUtil;
@@ -13,9 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName
@@ -29,13 +25,45 @@ public class OrderService {
     private OrderDao orderDao;
 
     /**
-     * 展示订单详情
+     * 展示订单列表
      * @param sign
      * @return
      */
-    public AppResponse showOrder(String sign){
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        List<OrderVo> orderVos = orderDao.showOrder(currentUserId,Integer.valueOf(sign));
+    public AppResponse orderList(int sign){
+        List<OrderListVo> orderListVos = orderDao.orderList(SecurityUtils.getCurrentUserId(), sign);
+        //计算订单下的商品总数量
+        for (OrderListVo order : orderListVos){
+            int totall = 0;
+            List<OrderMess> orderMess = order.getOrderList();
+            for (OrderMess orderMess1 : orderMess){
+                totall += orderMess1.getPurchaseNum();
+            }
+            order.setTotall(totall);
+        }
+        if (orderListVos == null){
+            return AppResponse.bizError("未查找到订单");
+        }else {
+            return AppResponse.success("订单查找成功",orderListVos);
+        }
+
+    }
+
+    /**
+     * 展示订单详情
+     * @param orderId
+     * @return
+     */
+    public AppResponse showOrderDetails(String orderId){
+        List<OrderVo> orderVos = orderDao.showOrderDetails(orderId);
+        //计算订单下的商品总数量
+        for (OrderVo order : orderVos){
+            int totall = 0;
+            List<OrderMess> orderList = order.getOrderList();
+            for (OrderMess orderMess1 : orderList){
+                totall += orderMess1.getPurchaseNum();
+            }
+            order.setTotall(totall);
+        }
         if (orderVos == null){
             return AppResponse.bizError("未查找到订单");
         }else {
@@ -45,14 +73,26 @@ public class OrderService {
 
     /**
      * 获取门店地址
-     * @param invitationCode
+     * @param
      * @return
      */
-    public AppResponse getLocation(String invitationCode){
-        Map<String, String> location = orderDao.getLocation(invitationCode);
+    public AppResponse getLocation(){
+        Map<String, Integer> currentRole = orderDao.findCurrentRole(SecurityUtils.getCurrentUserId());
+        Map<String, String> roleInvitationCode = new HashMap<>();
+        //获取店长邀请码
+        if (currentRole.get("role") == 2){
+            roleInvitationCode = orderDao.getInvitationCodeForShopowner(SecurityUtils.getCurrentUserId());
+        }
+        //获取顾客邀请码
+        else {
+            roleInvitationCode = orderDao.getRoleInvitationCode(SecurityUtils.getCurrentUserId());
+        }
+        //根据邀请码获取地址
+        Map<String, String> location = orderDao.getLocation(roleInvitationCode.get("invitationCode"));
         Map<String, String> locationMap = new HashMap<>();
         String storeName = location.get("storeName");
         String detailedAddress = null;
+        //省市名一样，去掉省名
         if (location.get("province").equals(location.get("city"))){
             detailedAddress = location.get("city") + location.get("location") + location.get("storeAddress");
         }else {
@@ -65,22 +105,56 @@ public class OrderService {
 
     /**
      * 添加商品评价
-     * @param goodsEvaluateDo
+     * @param evaluate
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public AppResponse evaluateGoods(GoodsEvaluateDo goodsEvaluateDo){
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        String EvaluateId = StringUtil.getCommonCode(2);
-        goodsEvaluateDo.setEvaluateId(EvaluateId);
-        goodsEvaluateDo.setCustomerId(currentUserId);
-        int count = orderDao.evaluateGoods(goodsEvaluateDo);
-        int i = orderDao.updateGoodsEvaluate(goodsEvaluateDo.getGoodsId(), currentUserId);
-        if (count == 0 || i == 0){
-            return AppResponse.bizError("评价未成功");
-        }else {
-            return AppResponse.success("评价成功");
+    public AppResponse evaluateGoods(Map<String,Object> evaluate){
+        String orderId = (String)evaluate.get("orderId");
+        List<List<Map<String,Object>>> evaluateList = (ArrayList)evaluate.get("evaluateList");
+        for (List<Map<String,Object>> eva : evaluateList){
+            for (Map<String,Object> evas : eva){
+                GoodsEvaluateDo goodsEvaluateDo = new GoodsEvaluateDo();
+                goodsEvaluateDo.setEvaluateId(StringUtil.getCommonCode(2));
+                goodsEvaluateDo.setCustomerId(SecurityUtils.getCurrentUserId());
+                goodsEvaluateDo.setAppraiseInfo((String)evas.get("appraiseInfo"));
+                goodsEvaluateDo.setGoodsId((String)evas.get("goodsId"));
+                goodsEvaluateDo.setOrderId(orderId);
+                goodsEvaluateDo.setStarLevel((int)evas.get("starLevel"));
+                //添加商品评价
+                int count = orderDao.evaluateGoods(goodsEvaluateDo);
+                if (count ==0){
+                    return AppResponse.bizError("评价未成功");
+                }
+                //修改商品评价状态
+                int i = orderDao.updateGoodsEvaluate(goodsEvaluateDo.getGoodsId(), goodsEvaluateDo.getOrderId());
+            }
+
         }
+        //修改订单状态为已完成已评价
+        if (orderDao.accoutGoodsEvaluate(orderId) == 0){
+            orderDao.updateGoodsOrderState(orderId);
+        }
+        return AppResponse.success("评价成功");
+
+
+//        String currentUserId = SecurityUtils.getCurrentUserId();
+//        String EvaluateId = StringUtil.getCommonCode(2);
+//        goodsEvaluateDo.setEvaluateId(EvaluateId);
+//        goodsEvaluateDo.setCustomerId(currentUserId);
+//        //添加商品评价
+//        int count = orderDao.evaluateGoods(goodsEvaluateDo);
+//        //修改商品评价状态
+//        int i = orderDao.updateGoodsEvaluate(goodsEvaluateDo.getGoodsId(), goodsEvaluateDo.getOrderId());
+//        //修改订单状态为已完成已评价
+//        if (orderDao.accoutGoodsEvaluate(goodsEvaluateDo.getOrderId()) == 0){
+//            orderDao.updateGoodsOrderState(goodsEvaluateDo.getOrderId());
+//        }
+//        if (count == 0 || i == 0){
+//            return AppResponse.bizError("评价未成功");
+//        }else {
+//            return AppResponse.success("评价成功");
+//        }
     }
 
     /**
@@ -89,8 +163,8 @@ public class OrderService {
      * @param sign
      * @return
      */
-    public AppResponse showEvaluateGoods(String goodsId,String sign){
-        List<GoodsEvaluateVo> goodsEvaluateVos = orderDao.showEvaluateGoods(goodsId, Integer.parseInt(sign));
+    public AppResponse showEvaluateGoods(String goodsId,int sign){
+        List<GoodsEvaluateVo> goodsEvaluateVos = orderDao.showEvaluateGoods(goodsId,sign);
         if (goodsEvaluateVos == null){
             return AppResponse.bizError("未有评价");
         }else {
@@ -151,6 +225,20 @@ public class OrderService {
             return AppResponse.success("获取成功",userMap);
         }else {
             return AppResponse.bizError("获取失败");
+        }
+    }
+
+    /**
+     * 修改订单状态为已取消
+     * @param orderId
+     * @return
+     */
+    public AppResponse updateOrderState(String orderId){
+        int i = orderDao.updateOrderState(orderId);
+        if (i == 0){
+            return AppResponse.bizError("订单未取消成功");
+        } else {
+            return AppResponse.success("订单取消成功");
         }
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,10 @@ public class CartService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse addShoppingCart(CartDo cartDo){
+        //校验库存是否还有
+        if (cartDo.getGoodsAmount() > cartDao.findGoodsStock(cartDo.getGoodsId()).get("goodsStock")){
+            return AppResponse.bizError("库存不足，请重新添加");
+        }
         cartDo.setCartId(StringUtil.getCommonCode(2));
         cartDo.setCustomerId(SecurityUtils.getCurrentUserId());
         cartDo.setCreateBy(SecurityUtils.getCurrentUserId());
@@ -90,6 +95,11 @@ public class CartService {
         }
     }
 
+    /**
+     * 从购物车下订单
+     * @param cartDTO
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse buyShoppingCart(CartDTO cartDTO){
         OrderDo orderDo = new OrderDo();
@@ -97,7 +107,8 @@ public class CartService {
         String orderId = StringUtil.getCommonCode(2);
         orderDo.setOrderId(orderId);
         //获取并设置门店Id
-        Map<String, String> storeId = cartDao.getStoreId(cartDTO.getInvitationCode());
+        Map<String, String> roleInvitationCode = cartDao.getRoleInvitationCode(SecurityUtils.getCurrentUserId());
+        Map<String, String> storeId = cartDao.getStoreId(roleInvitationCode.get("invitationCode"));
         orderDo.setStoreId(storeId.get("storeId"));
         //设置订单总价
         orderDo.setOrderTotalPrice(cartDTO.getOrderTotalPrice());
@@ -134,5 +145,59 @@ public class CartService {
         //下单成功后删除购物车
         cartDao.deleteShoppingCart(cartIdList,SecurityUtils.getCurrentUserId());
         return AppResponse.success("下单成功",orderId);
+    }
+
+    /**
+     * 直接购买下单
+     * @param directOrderDTO
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public AppResponse directOrder(DirectOrderDTO directOrderDTO){
+        //校验库存是否还有
+        if (directOrderDTO.getPurchaseNum() > cartDao.findGoodsStock(directOrderDTO.getGoodsId()).get("goodsStock")){
+            return AppResponse.bizError("库存不足，请重新添加");
+        }
+        OrderDo orderDo = new OrderDo();
+        String orderId = StringUtil.getCommonCode(2);
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        //设置订单编号
+        orderDo.setOrderId(orderId);
+        //设置购买总价
+        BigDecimal sale = new BigDecimal((directOrderDTO.getPurchaseNum() * directOrderDTO.getGoodsSale()));
+        double totalPrice = sale.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        orderDo.setOrderTotalPrice(totalPrice);
+        //设置下单的门店
+        Map<String, String> storeIdOfUserId = cartDao.getStoreIdOfUserId(currentUserId);
+        orderDo.setStoreId(storeIdOfUserId.get("storeId"));
+        //获取并设置下单人基本信息
+        Map<String, String> userMess = cartDao.getUserMess(currentUserId);
+        orderDo.setCustomerId(currentUserId);
+        orderDo.setShopingName(userMess.get("shoppingName"));
+        orderDo.setShoppingPhone(userMess.get("shoppingPhone"));
+        //创建订单
+        int count = cartDao.addOrder(orderDo);
+        if (count == 0){
+            return AppResponse.bizError("下单失败");
+        }
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrdersId(StringUtil.getCommonCode(2));
+        orderDTO.setOrderId(orderId);
+        orderDTO.setUserId(currentUserId);
+        orderDTO.setPurchaseNum(directOrderDTO.getPurchaseNum());
+        orderDTO.setTotalPrice(totalPrice);
+        //设置订单详情商品信息
+        GoodsDetailDTO goodsOfId = cartDao.getGoodsOfId(directOrderDTO.getGoodsId());
+        orderDTO.setGoodsId(goodsOfId.getGoodsId());
+        orderDTO.setGoodsName(goodsOfId.getGoodsName());
+        orderDTO.setSale(goodsOfId.getGoodsSale());
+        orderDTO.setPrice(goodsOfId.getGoodsCostprice());
+        //添加到订单详细
+        int i = cartDao.addOrderDetails(orderDTO);
+        if (i == 0){
+            return AppResponse.bizError("下单失败");
+        }else {
+            return AppResponse.success("下单成功");
+        }
     }
 }

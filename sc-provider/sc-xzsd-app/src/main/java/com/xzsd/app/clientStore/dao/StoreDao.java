@@ -36,7 +36,7 @@ public interface StoreDao {
      * @param storeId
      * @return
      */
-    public List<OrderMessVo> showOrder(String storeId);
+    public List<OrderMessVo> showOrder(@Param("storeId") String storeId,@Param("sign") int sign);
 
     /**
      * 获取登录人门店Id

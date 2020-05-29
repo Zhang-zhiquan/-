@@ -23,6 +23,18 @@ public class HotGoodsVo {
      * 商品售价
      */
     private Double goodsSale;
+    /**
+     * 图片路径
+     */
+    private String goodsPicture;
+
+    public String getGoodsPicture() {
+        return goodsPicture;
+    }
+
+    public void setGoodsPicture(String goodsPicture) {
+        this.goodsPicture = goodsPicture;
+    }
 
     public Integer getGoodsSort() {
         return goodsSort;

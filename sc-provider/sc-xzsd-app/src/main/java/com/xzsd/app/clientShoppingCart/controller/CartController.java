@@ -2,6 +2,7 @@ package com.xzsd.app.clientShoppingCart.controller;
 
 import com.xzsd.app.clientShoppingCart.entity.CartDTO;
 import com.xzsd.app.clientShoppingCart.entity.CartDo;
+import com.xzsd.app.clientShoppingCart.entity.DirectOrderDTO;
 import com.xzsd.app.clientShoppingCart.service.CartService;
 import com.xzsd.app.util.AppResponse;
 import org.slf4j.Logger;
@@ -88,15 +89,37 @@ public class CartController {
         }
     }
 
+    /**
+     * 从购物车下订单
+     * @param cartDTO
+     * @return
+     */
     @RequestMapping(value = "buyShoppingCart")
     public AppResponse buyShoppingCart(CartDTO cartDTO){
         try{
             return cartService.buyShoppingCart(cartDTO);
         }catch (Exception e){
-            logger.error("删除购物车异常",e);
+            logger.error("购物车下单异常",e);
             System.out.println(e.toString());
             throw e;
         }
     }
+
+    /**
+     * 直接购买下单
+     * @param directOrderDTO
+     * @return
+     */
+    @RequestMapping(value = "directOrder")
+    public AppResponse directOrder(DirectOrderDTO directOrderDTO){
+        try{
+            return cartService.directOrder(directOrderDTO);
+        }catch (Exception e){
+            logger.error("直接下单异常",e);
+            System.out.println(e.toString());
+            throw e;
+        }
+    }
+
 
 }

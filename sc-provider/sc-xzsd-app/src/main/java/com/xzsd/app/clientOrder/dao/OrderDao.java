@@ -2,6 +2,7 @@ package com.xzsd.app.clientOrder.dao;
 
 import com.xzsd.app.clientOrder.entity.GoodsEvaluateDo;
 import com.xzsd.app.clientOrder.entity.GoodsEvaluateVo;
+import com.xzsd.app.clientOrder.entity.OrderListVo;
 import com.xzsd.app.clientOrder.entity.OrderVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -18,11 +19,32 @@ import java.util.Map;
 @Mapper
 public interface OrderDao {
     /**
-     * 展示订单详情
-     * @param currentUserId
+     * 获取邀请码
+     * @param userId
      * @return
      */
-    public List<OrderVo> showOrder(@Param("currentUserId") String currentUserId,@Param("sign") int sign);
+    public Map<String,String> getRoleInvitationCode(String userId);
+
+    /**
+     * 获取店长邀请码
+     * @param userId
+     * @return
+     */
+    public Map<String,String> getInvitationCodeForShopowner(String userId);
+
+    /**
+     * 展示订单列表
+     * @param currentUserId
+     * @param sign
+     * @return
+     */
+    public List<OrderListVo> orderList(@Param("currentUserId") String currentUserId,@Param("sign") int sign);
+    /**
+     * 展示订单详情
+     * @param
+     * @return
+     */
+    public List<OrderVo> showOrderDetails(String orderId);
 
     /**
      * 获取门店地址
@@ -43,8 +65,21 @@ public interface OrderDao {
      * @param goodsId
      * @return
      */
-    public int updateGoodsEvaluate(@Param("goodsId") String goodsId,@Param("currentUserId") String currentUserId);
+    public int updateGoodsEvaluate(@Param("goodsId") String goodsId,@Param("orderId") String orderId);
 
+    /**
+     * 统计订单下的商品是否评价完
+     * @param orderId
+     * @return
+     */
+    public int accoutGoodsEvaluate(String orderId);
+
+    /**
+     * 修改订单状态为已完成已评价
+     * @param orderId
+     * @return
+     */
+    public int updateGoodsOrderState(String orderId);
     /**
      * 展示商品评价
      * @param goodsId
@@ -89,4 +124,18 @@ public interface OrderDao {
      * @return
      */
     public Map<String,String> customerDetails(String customerId);
+
+    /**
+     * 查询当前登录人角色
+     * @param userId
+     * @return
+     */
+    public Map<String,Integer> findCurrentRole(String userId);
+
+    /**
+     * 修改订单状态为已取消
+     * @param orderId
+     * @return
+     */
+    public int updateOrderState(String orderId);
 }

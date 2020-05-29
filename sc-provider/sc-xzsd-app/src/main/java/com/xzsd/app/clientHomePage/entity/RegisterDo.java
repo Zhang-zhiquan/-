@@ -47,6 +47,10 @@ public class RegisterDo {
      * 邀请码
      */
     private String invitationCode;
+    /**
+     * 图片路径
+     */
+    private String imagesUrl;
 
     public String getUserAccount() {
         return userAccount;
@@ -126,5 +130,13 @@ public class RegisterDo {
 
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
+    }
+
+    public String getImagesUrl() {
+        return imagesUrl;
+    }
+
+    public void setImagesUrl(String imagesUrl) {
+        this.imagesUrl = imagesUrl;
     }
 }

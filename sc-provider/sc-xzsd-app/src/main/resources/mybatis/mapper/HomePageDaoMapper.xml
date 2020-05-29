@@ -33,6 +33,7 @@
         role,
         idCard,
         email,
+        imagesUrl,
         isDetele,
         buildTime,
         modifiyTime,
@@ -48,6 +49,7 @@
         4,
         #{idCard},
         #{email},
+        #{imagesUrl},
         1,
         now(),
         now(),
@@ -104,7 +106,7 @@
 
     <!--展示热门商品-->
     <select id="showHotGoods" resultType="com.xzsd.app.clientHomePage.entity.HotGoodsVo">
-        select thg.goodsSort,thg.goodsId,tg.goodsName,tg.goodsSale
+        select thg.goodsSort,thg.goodsId,tg.goodsName,tg.goodsSale,tg.goodsPicture
         from t_hot_goods thg
         left join t_goods tg
         on thg.goodsId = tg.goodsId and thg.isdetele = 1 and tg.isDetele = 1

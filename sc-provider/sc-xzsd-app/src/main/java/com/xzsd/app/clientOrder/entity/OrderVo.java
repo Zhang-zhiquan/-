@@ -10,10 +10,12 @@ import java.util.List;
  */
 public class OrderVo {
     private String orderId;
-    private String orderState;
+    private Integer orderState;
     private String buildTime;
     private double orderTotalPrice;
+    private int totall;
     private List<OrderMess> orderList;
+
     public String getOrderId() {
         return orderId;
     }
@@ -22,11 +24,11 @@ public class OrderVo {
         this.orderId = orderId;
     }
 
-    public String getOrderState() {
+    public Integer getOrderState() {
         return orderState;
     }
 
-    public void setOrderState(String orderState) {
+    public void setOrderState(Integer orderState) {
         this.orderState = orderState;
     }
 
@@ -52,5 +54,13 @@ public class OrderVo {
 
     public void setOrderList(List<OrderMess> orderList) {
         this.orderList = orderList;
+    }
+
+    public int getTotall() {
+        return totall;
+    }
+
+    public void setTotall(int totall) {
+        this.totall = totall;
     }
 }

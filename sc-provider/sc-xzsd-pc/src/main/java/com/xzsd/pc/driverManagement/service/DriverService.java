@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -65,8 +66,9 @@ public class DriverService {
      */
     public AppResponse listDriver(DriverDo driverDo){
         PageHelper.startPage(driverDo.getPageNum(),driverDo.getPageSize());
+        int role = driverDao.findCurrentRole(SecurityUtils.getCurrentUserId()).get("role");
         //询司机列表，管理员权限
-        if (driverDo.getRole() == 1){
+        if (role == 1){
             List<DriverVo> driverVos = driverDao.listDriverForManagement(driverDo);
             PageInfo<DriverVo> driverVoPageInfo = new PageInfo<>(driverVos);
             if (driverVos != null){
@@ -77,9 +79,12 @@ public class DriverService {
         }
         //询司机列表，店长权限
         else {
-            DriverVo driverVo = driverDao.listDriverForSelf(driverDo);
+            //司机处于门店的所在地区时展示
+            driverDo.setLocation(driverDao.findLocaltion(SecurityUtils.getCurrentUserId()).get("location"));
+            List<DriverVo> driverVo = driverDao.listDriverForSelf(driverDo);
+            PageInfo<DriverVo> driverVoPageInfo = new PageInfo<>(driverVo);
             if (driverVo != null){
-                return AppResponse.success("查询司机成功",driverVo);
+                return AppResponse.success("查询司机成功",driverVoPageInfo);
             }else {
                 return AppResponse.bizError("查询司机失败");
             }
@@ -107,15 +112,6 @@ public class DriverService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse updateDriver(DriverDo driverDo){
-        //校验用户表版本
-        if (driverDao.accoutVersion(driverDo.getVersion(),driverDo.getUserId()) <= 0){
-            return AppResponse.bizError("操作失败，版本已更新,请刷新操作");
-        }
-        //校验司机表版本
-        if (driverDao.accoutVersionDriver(driverDo.getDriverId(),driverDo.getVersion()) <= 0){
-            return AppResponse.bizError("操作失败，版本已更新,请刷新操作");
-        }
-        ////校验账号是否已经存在
         if (driverDo.getDriverAccounte() != null && !"".equals(driverDo.getDriverAccounte())){
             if(driverDao.accoutAcc(driverDo.getDriverAccounte()) > 0){
                 return AppResponse.bizError("账号已存在，请重新输入");
@@ -127,16 +123,17 @@ public class DriverService {
                 return AppResponse.bizError("手机号已存在，请重新输入");
             }
         }
-
         if (driverDo.getPassword() != null && !"".equals(driverDo.getPassword())){
+            //修改司机密码
             driverDo.setPassword(PasswordUtils.generatePassword(driverDo.getPassword()));
         }
+        //分别修改司机表和用户表的信息
         int count = driverDao.updateDriverForUser(driverDo);
         int i = driverDao.updateDriverForSelf(driverDo);
         if (count != 0 && i != 0){
             return AppResponse.success("司机信息修改成功");
         }else {
-            return AppResponse.bizError("司机信息修改成功");
+            return AppResponse.bizError("司机信息修改失败");
         }
     }
 
@@ -154,6 +151,7 @@ public class DriverService {
             String currentUserId = SecurityUtils.getCurrentUserId();
             List<String> userIdList = Arrays.asList(userId.split(","));
             List<String> driverIdList = Arrays.asList(driverId.split(","));
+            //分别删除司机表和用户表
             int count = driverDao.deleteDriverUser(userIdList, currentUserId);
             int i = driverDao.deleteDriver(driverIdList, currentUserId);
             if (count != 0 && i != 0){

@@ -5,6 +5,8 @@ import com.xzsd.pc.menuManagement.dao.MenuDao;
 import com.xzsd.pc.menuManagement.entity.MenuDo;
 import com.xzsd.pc.menuManagement.entity.MenuVo;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
+import com.xzsd.pc.util.UUIDUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,14 @@ public class MenuService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse addMenu(MenuDo menuDo){
+        menuDo.setMenuId(StringUtil.getCommonCode(2));
+        menuDo.setCreateBy(SecurityUtils.getCurrentUserId());
+        //校验菜单名是否已经存在
+        int i = menuDao.accoutMenu(menuDo.getMenuName());
+        if( i > 0 ){
+            return AppResponse.bizError("菜单名称已存在，请重新输入：");
+        }
+        //添加菜单名
         int count = menuDao.addMenu(menuDo);
         if(count ==0){
             return AppResponse.bizError("新增菜单失败");

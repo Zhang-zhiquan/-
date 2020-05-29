@@ -2,16 +2,20 @@ package com.xzsd.pc.goodsManagement.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.neusoft.security.client.utils.SecurityUtils;
 import com.xzsd.pc.goodsManagement.dao.GoodsDao;
 import com.xzsd.pc.goodsManagement.entity.GoodsDo;
 import com.xzsd.pc.goodsManagement.entity.GoodsVo;
 import com.xzsd.pc.util.AppResponse;
+import com.xzsd.pc.util.StringUtil;
+import com.xzsd.pc.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,11 +51,11 @@ public class GoodsService {
      */
     @Transactional(rollbackFor = Exception.class)
     public AppResponse addList(GoodsDo goodsDo){
-        AppResponse appResponse;
+        goodsDo.setCreateBy(SecurityUtils.getCurrentUserId());
+        goodsDo.setGoodsId(StringUtil.getCommonCode(2));
         int count = goodsDao.addGoods(goodsDo);
         if(0 == count){
-             appResponse = AppResponse.bizError("商品添加失败");
-             return appResponse;
+            return AppResponse.bizError("商品添加失败");
         }
         return AppResponse.success("商品添加成功");
     }
@@ -65,26 +69,6 @@ public class GoodsService {
         GoodsVo goods = goodsDao.findGoods(goodsId);
         return AppResponse.success("查询成功",goods);
     }
-
-    /**
-     * 修改商品信息  实现有问题，待解决
-     * @param goodsDo
-     * @param currentUserId
-     * @return
-     */
-//    public AppResponse updateGoods(GoodsDo goodsDo,String currentUserId){
-//        if(goodsDo.getGoodsId().equals(' ')){
-//            return AppResponse.paramError("未接收到要查询的商品Id");
-//        }else {
-//            System.out.println(goodsDo.getPublisher());
-//            int count = goodsDao.updateGoods(goodsDo, currentUserId);
-//            if (count == 0){
-//                return AppResponse.bizError("未查询到此商品,商品修改失败");
-//            }else {
-//                return AppResponse.success("商品修改成功");
-//            }
-//        }
-//    }
 
     /**
      * 修改商品信息
@@ -115,4 +99,19 @@ public class GoodsService {
         }
     }
 
+    /**
+     * 商品上架下架
+     * @param goodsId
+     * @param sign
+     * @return
+     */
+    public AppResponse updateGoodsState(String goodsId,String sign){
+        List<String> goodsIds = Arrays.asList(goodsId.split(","));
+        int i = goodsDao.updateGoodsState(goodsIds, Integer.parseInt(sign));
+        if (i == 0){
+            return AppResponse.success("商品上下架失败");
+        }else {
+            return AppResponse.success("商品上下架成功");
+        }
+    }
 }

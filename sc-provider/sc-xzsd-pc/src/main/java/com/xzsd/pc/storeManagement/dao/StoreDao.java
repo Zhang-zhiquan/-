@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -103,4 +104,8 @@ public interface StoreDao {
      * @return
      */
     public int deleteStore(@Param("storeId") List<String> storeId,@Param("currentUserId") String currentUserId);
+
+    public List<ShopnerVo> findShopwner(ShopnerDTO shopnerDTO);
+
+    Map<String,Integer> findCurrentRole(String currentUserId);
 }

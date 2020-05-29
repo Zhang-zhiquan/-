@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xzsd.app.clientShoppingCart.dao.CartDao">
+    <!--获取登录用户邀请码-->
+    <resultMap id="roleIn" type="java.util.Map">
+        <result column="invitationCode" property="invitationCode" javaType="String" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getRoleInvitationCode" resultMap="roleIn">
+        select invitationCode
+        from t_customer
+        where
+        userId = #{userId} and isdetele = 1
+    </select>
+
     <!--添加购物车-->
     <insert id="addShoppingCart" parameterType="com.xzsd.app.clientShoppingCart.entity.CartDo">
         insert into t_shopping_cart
@@ -97,7 +108,6 @@
         customerId,
         shopingName,
         shoppingPhone,
-        isEvaluate,
         isdetele,
         buildTime,
         modifiyTime,
@@ -115,7 +125,6 @@
         #{customerId},
         #{shopingName},
         #{shoppingPhone},
-        0,
         1,
         now(),
         now(),
@@ -152,6 +161,7 @@
         totalPrice,
         sale,
         price,
+        isEvaluate,
         isdetele,
         buildTime,
         modifiyTime,
@@ -169,6 +179,7 @@
         #{totalPrice},
         #{sale},
         #{price},
+        0,
         1,
         now(),
         now(),
@@ -177,4 +188,32 @@
         0
         )
     </insert>
+
+    <!--通过客户Id获取门店Id-->
+    <resultMap id="storeIdOfUserId" type="java.util.Map">
+        <result column="storeId" property="storeId" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getStoreIdOfUserId" resultMap="storeIdOfUserId">
+        SELECT storeId
+        FROM t_customer tc
+        LEFT JOIN t_store ts
+        ON tc.invitationCode = ts.invitationCode
+        WHERE
+        tc.userId = #{currentUserId} AND tc.isdetele = 1 AND ts.isdetele = 1
+    </select>
+
+    <!--通过商品Id获取商品信息-->
+    <select id="getGoodsOfId" resultType="com.xzsd.app.clientShoppingCart.entity.GoodsDetailDTO">
+        SELECT goodsId,goodsName,goodsSale,goodsCostprice
+        FROM t_goods
+        WHERE
+        goodsId = #{goodsId} AND isdetele = 1
+    </select>
+
+    <resultMap id="stock" type="java.util.Map">
+        <result column="goodsStock" property="goodsStock" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="findGoodsStock" resultMap="stock">
+        select goodsStock from t_goods where goodsId = #{goodsId} and isdetele = 1
+    </select>
 </mapper>

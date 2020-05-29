@@ -3,8 +3,10 @@ package com.xzsd.pc.customerManagement.dao;
 import com.xzsd.pc.customerManagement.entity.CustomerDTO;
 import com.xzsd.pc.customerManagement.entity.CustomerDo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -27,5 +29,14 @@ public interface CustomerDao {
      * @return
      */
     CustomerDo findCustomer(String userId);
+
+    /**
+     * 查询当前用户角色
+     * @param currentUserId
+     * @return
+     */
+    Map<String,Integer> fingCurrentRole(String currentUserId);
+
+    Map<String,String> findInvitationCode(String currentUserId);
 
 }

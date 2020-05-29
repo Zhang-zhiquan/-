@@ -16,7 +16,7 @@ public class HotGoodsDo {
     /**
      * 热门商品排序
      */
-    private int goodsSort;
+    private Integer goodsSort;
     /**
      * 商品Id
      */
@@ -54,11 +54,11 @@ public class HotGoodsDo {
         this.hotGoodsId = hotGoodsId;
     }
 
-    public int getGoodsSort() {
+    public Integer getGoodsSort() {
         return goodsSort;
     }
 
-    public void setGoodsSort(int goodsSort) {
+    public void setGoodsSort(Integer goodsSort) {
         this.goodsSort = goodsSort;
     }
 

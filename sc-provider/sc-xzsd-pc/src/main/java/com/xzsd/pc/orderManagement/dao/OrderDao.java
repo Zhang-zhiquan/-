@@ -47,4 +47,11 @@ public interface OrderDao {
      */
     public List<OrderDetailVo> findOrder(String orderId);
 
+    /**
+     * 查询当前用户角色
+     * @param currentUserId
+     * @return
+     */
+    Map<String,Integer> findCurrentRole(String currentUserId);
+
 }
